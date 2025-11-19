@@ -1,7 +1,11 @@
 import React, { useState, createContext, useContext, useEffect } from 'react';
-import { Menu, X, ArrowRight, TrendingUp, Cpu, Users, Mail, Phone, MapPin, BarChart, Sun, Moon } from 'lucide-react';
+import {
+  Menu, X, ArrowRight, TrendingUp, Cpu, Users, Mail, Phone, MapPin, BarChart, Sun, Moon, MessageSquareText, ScanEye, Waypoints, Zap } from 'lucide-react';
 import logo from './assets/edgeaiblack.png';
-import  logoWhite  from './assets/edgeaiwhite.png';
+import logoWhite from './assets/edgeaiwhite.png';
+// import SolutionsSection from './components/SolutionsSection';
+// import ContactSection from './components/Contact';
+
 // --- Global Constants and Logo ---
 
 // The logo provided is white. For light mode, we invert the colors of the image
@@ -171,7 +175,7 @@ const HeroSection = () => {
     <section id="home" className={`pt-20 min-h-screen flex items-center justify-center ${getClasses(theme, 'bg-main')}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
         <h1 className="text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight mb-6 leading-tight">
-          The <span className={getClasses(theme, 'text-highlight')}>Edge</span> of AI in Business.
+          Gain the <span className={getClasses(theme, 'text-highlight')}>Edge</span> with AI.
         </h1>
         <p className={`text-xl sm:text-2xl max-w-3xl mx-auto mb-10 ${getClasses(theme, 'text-secondary')}`}>
           Empowering large enterprises and ambitious SMEs with bespoke, cutting-edge AI solutions for real-world impact and exponential growth.
@@ -247,27 +251,28 @@ const AboutSection = () => {
 
 const solutionsData = [
   { 
-    title: "Predictive Analytics", 
-    description: "Forecast market trends, manage inventory, and anticipate customer churn with accuracy that drives proactive decision-making.", 
-    icon: TrendingUp 
+    title: "Lora", 
+    description: "Custom-trained chatbots that understand your specific business context, enabling natural, accurate 24/7 customer and internal support.", 
+    icon: MessageSquareText 
   },
   { 
-    title: "Intelligent Automation", 
-    description: "Streamline repetitive processes (RPA), enhance workflow efficiency, and reduce operational costs across all departments.", 
-    icon: Cpu 
+    title: "Iris360", 
+    description: "Advanced OCR APIs that digitize documents, extract key data points, and automate entry from invoices, receipts, and forms instantly.", 
+    icon: ScanEye 
   },
   { 
-    title: "Customer Intelligence", 
-    description: "Leverage AI to understand customer behavior, personalize experiences, and optimize marketing spend for higher conversion.", 
-    icon: Users 
+    title: "Nexus", 
+    description: "Autonomous agentic workflows that chain complex reasoning tasks together to execute multi-step business processes without human intervention.", 
+    icon: Waypoints 
   },
   { 
-    title: "Risk & Compliance Monitoring", 
-    description: "Automate threat detection, flag suspicious activities, and ensure regulatory adherence using real-time data analysis.", 
-    icon: BarChart 
+    title: "GenPulse", 
+    description: "Generative AI automations for creative content, code generation, and personalized marketing campaigns at enterprise scale.", 
+    icon: Zap 
   },
 ];
 
+ 
 const SolutionsSection = () => {
   const { theme, getClasses } = useTheme();
   return (
@@ -307,7 +312,7 @@ const SolutionsSection = () => {
   );
 };
 
-
+{/* <SolutionsSection /> */}
 // --- 5. Statistics/Impact Component ---
 
 const statsData = [
@@ -478,6 +483,7 @@ const ContactSection = () => {
     </section>
   );
 };
+{/* <ContactSection /> */}
 
 // --- 7. Footer Component ---
 

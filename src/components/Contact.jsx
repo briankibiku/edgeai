@@ -1,7 +1,25 @@
 
-import React, { useState, createContext, useContext, useEffect } from 'react';
-import { Menu, X, ArrowRight, TrendingUp, Cpu, Users, Mail, Phone, MapPin, BarChart, Sun, Moon } from 'lucide-react';
+import React, { useState } from 'react';
+import {  Mail, Phone, MapPin, BarChart, Sun, Moon } from 'lucide-react';
 
+
+const useTheme = () => ({
+  theme: 'light', 
+  getClasses: (theme, element) => {
+    const isDark = theme === 'dark';
+    switch (element) {
+      case 'bg-main': return isDark ? 'bg-black text-white' : 'bg-white text-gray-900';
+      case 'text-primary': return isDark ? 'text-white' : 'text-gray-900';
+      case 'text-highlight': return isDark ? 'text-gray-300' : 'text-gray-600';
+      case 'text-secondary': return isDark ? 'text-gray-400' : 'text-gray-600';
+      case 'card-bg': return isDark ? 'bg-gray-900 border-gray-800 hover:border-white' : 'bg-white border-gray-200 hover:border-black shadow-lg';
+      case 'icon-bg': return isDark ? 'bg-gray-700' : 'bg-gray-200';
+      case 'button-secondary-outline': return isDark ? 'text-white border-white hover:bg-gray-900' : 'text-gray-900 border-gray-900 hover:bg-gray-100';
+      case 'border-separator': return isDark ? 'border-gray-800' : 'border-gray-200';
+      default: return '';
+    }
+  }
+});
 
 const ContactSection = () => {
   const { theme, getClasses } = useTheme();
@@ -133,3 +151,5 @@ const ContactSection = () => {
     </section>
   );
 };
+
+export default ContactSection;

@@ -178,7 +178,7 @@ const HeroSection = () => {
           Gain the <span className="text-lime-600">Edge</span> with AI.
         </h1>
         <p className={`text-xl sm:text-2xl max-w-3xl mx-auto mb-10 ${getClasses(theme, 'text-secondary')}`}>
-          Empowering businesses with bespoke, AI solutions for real-world impact and exponential growth.
+          Supercharging businesses with bespoke, AI solutions for real-world impact and exponential growth.
         </p>
         <button 
           onClick={(e) => { e.preventDefault(); document.querySelector('#solutions').scrollIntoView({ behavior: 'smooth' }); }}

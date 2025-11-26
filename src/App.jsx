@@ -175,10 +175,10 @@ const HeroSection = () => {
     <section id="home" className={`pt-20 min-h-screen flex items-center justify-center ${getClasses(theme, 'bg-main')}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
         <h1 className="text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight mb-6 leading-tight">
-          Gain the <span className={getClasses(theme, 'text-highlight')}>Edge</span> with AI.
+          Gain the <span className="text-lime-600">Edge</span> with AI.
         </h1>
         <p className={`text-xl sm:text-2xl max-w-3xl mx-auto mb-10 ${getClasses(theme, 'text-secondary')}`}>
-          Empowering large enterprises and ambitious SMEs with bespoke, cutting-edge AI solutions for real-world impact and exponential growth.
+          Empowering businesses with bespoke, AI solutions for real-world impact and exponential growth.
         </p>
         <button 
           onClick={(e) => { e.preventDefault(); document.querySelector('#solutions').scrollIntoView({ behavior: 'smooth' }); }}
@@ -192,60 +192,206 @@ const HeroSection = () => {
 };
 
 // --- 3. About Component ---
-
 const AboutSection = () => {
   const { theme, getClasses } = useTheme();
   const isDark = theme === 'dark';
-  
+
   return (
-    <section id="about" className={`py-24 ${getClasses(theme, 'bg-secondary')} border-t ${getClasses(theme, 'border-separator')}`}>
+    <section
+      id="about"
+      className={`py-24 ${getClasses(theme, 'bg-secondary')} border-t ${getClasses(
+        theme,
+        'border-separator'
+      )}`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
           <div>
-            <h2 className={`text-4xl sm:text-5xl font-extrabold mb-6 ${getClasses(theme, 'text-primary')}`}>
-              Pioneering <span className={getClasses(theme, 'text-highlight')}>Intelligent Transformation</span>
+            <h2
+              className={`text-4xl sm:text-5xl font-extrabold mb-6 ${getClasses(
+                theme,
+                'text-primary'
+              )}`}
+            >
+              Building the Future with{" "}
+              <span className={getClasses(theme, 'text-highlight')}>
+                Intelligent Systems
+              </span>
             </h2>
+
             <p className={`text-lg mb-8 ${getClasses(theme, 'text-secondary')}`}>
-              EdgeAI was founded on the principle that transformative AI should be accessible, practical, and tailored. We move beyond generic tools, focusing instead on deep integration and customized models that solve your most pressing business challenges—from supply chain optimization for multinational corporations to smart customer engagement for growing SMEs.
+              EdgeAI exists for one purpose: to turn AI from a buzzword into a
+              real competitive advantage. We engineer solutions that plug
+              straight into your operations—lean, custom, and tuned for business
+              impact. No generic templates. No one-size-fits-all models. Only
+              practical intelligence that moves numbers and sharpens execution.
             </p>
+
             <div className="space-y-4">
               <p className={`flex items-start ${getClasses(theme, 'text-primary')}`}>
-                <TrendingUp className={`h-6 w-6 ${getClasses(theme, 'text-primary')} mr-3 mt-1 flex-shrink-0`} />
-                <span className='font-semibold'>Focused Expertise:</span> We specialize exclusively in business AI, ensuring our strategies are relevant and results-driven.
+                <TrendingUp
+                  className={`h-6 w-6 ${getClasses(theme, 'text-primary')} mr-3 mt-1 flex-shrink-0`}
+                />
+                <span className="font-semibold">Business-First AI:</span> Every
+                solution is engineered to drive outcomes—efficiency, revenue,
+                accuracy, scale. No theory. All impact.
               </p>
+
               <p className={`flex items-start ${getClasses(theme, 'text-primary')}`}>
-                <Cpu className={`h-6 w-6 ${getClasses(theme, 'text-primary')} mr-3 mt-1 flex-shrink-0`} />
-                <span className='font-semibold'>Custom Solutions:</span> Our models are built from the ground up to fit your unique operational context and data ecosystem.
+                <Cpu
+                  className={`h-6 w-6 ${getClasses(theme, 'text-primary')} mr-3 mt-1 flex-shrink-0`}
+                />
+                <span className="font-semibold">Tailor-Made Models:</span> We
+                train and deploy models shaped around your data, your workflows,
+                and your competitive landscape. Precision over approximation.
               </p>
             </div>
           </div>
           <div className="mt-12 lg:mt-0 relative">
-            {/* Clean, abstract visual representation of data/AI */}
-            <div className={`p-8 rounded-lg shadow-2xl relative overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
-              <div className={`absolute top-0 left-0 w-full h-full opacity-10 ${isDark ? 'bg-white/10' : 'bg-black/10'} pointer-events-none`}></div>
-              <p className={`text-4xl font-mono mb-4 ${isDark ? 'text-white/50' : 'text-gray-400'}`}>&lt;DataPipeline&gt;</p>
+            <div
+              className={`p-8 rounded-lg shadow-2xl relative overflow-hidden ${
+                isDark ? 'bg-gray-800' : 'bg-gray-100'
+              }`}
+            >
+              <div
+                className={`absolute top-0 left-0 w-full h-full opacity-10 ${
+                  isDark ? 'bg-white/10' : 'bg-black/10'
+                } pointer-events-none`}
+              ></div>
+
+              <p
+                className={`text-4xl font-mono mb-4 ${
+                  isDark ? 'text-white/50' : 'text-gray-400'
+                }`}
+              >
+                &lt;EdgeAI.System&gt;
+              </p>
+
               <div className={`space-y-4 ${getClasses(theme, 'text-secondary')}`}>
-                <div className={`flex justify-between border-b ${isDark ? 'border-gray-700' : 'border-gray-300'} pb-2`}>
-                  <span className="font-mono">OptimizationModel.run()</span>
-                  <span className={`font-semibold ${isDark ? 'text-green-400' : 'text-green-600'}`}>STATUS: COMPLETE</span>
+
+                {/* AUTOMATION */}
+                <div
+                  className={`flex justify-between border-b ${
+                    isDark ? 'border-gray-700' : 'border-gray-300'
+                  } pb-2`}
+                >
+                  <span className="font-mono">WorkflowAI.optimize()</span>
+                  <span
+                    className={`font-semibold ${
+                      isDark ? 'text-green-400' : 'text-green-600'
+                    }`}
+                  >
+                    87% Faster Ops
+                  </span>
                 </div>
-                <div className={`flex justify-between border-b ${isDark ? 'border-gray-700' : 'border-gray-300'} pb-2`}>
-                  <span className="font-mono">PredictiveEngine.query('Q3_Revenue')</span>
-                  <span className={`font-semibold ${getClasses(theme, 'text-primary')}`}>$12.4M Predicted</span>
+
+                {/* PREDICTION */}
+                <div
+                  className={`flex justify-between border-b ${
+                    isDark ? 'border-gray-700' : 'border-gray-300'
+                  } pb-2`}
+                >
+                  <span className="font-mono">ForecastEngine.predict('Revenue')</span>
+                  <span className={`font-semibold ${getClasses(theme, 'text-primary')}`}>
+                    +14.2% Projected
+                  </span>
                 </div>
+
+                {/* CUSTOM LLM */}
+                <div
+                  className={`flex justify-between border-b ${
+                    isDark ? 'border-gray-700' : 'border-gray-300'
+                  } pb-2`}
+                >
+                  <span className="font-mono">LLM.custom('SupportBot')</span>
+                  <span
+                    className={`font-semibold ${getClasses(theme, 'text-highlight')}`}
+                  >
+                    42% Load Reduction
+                  </span>
+                </div>
+
+                {/* INSIGHTS */}
                 <div className="flex justify-between">
-                  <span className="font-mono">CustomerSegmentation.analyze()</span>
-                  <span className={`font-semibold ${getClasses(theme, 'text-highlight')}`}>4 Segments Identified</span>
+                  <span className="font-mono">InsightEngine.cluster()</span>
+                  <span
+                    className={`font-semibold ${getClasses(theme, 'text-highlight')}`}
+                  >
+                    6 Segments Mapped
+                  </span>
                 </div>
               </div>
-              <p className={`text-4xl font-mono mt-4 text-right ${isDark ? 'text-white/50' : 'text-gray-400'}`}>&lt;/DataPipeline&gt;</p>
+
+              <p
+                className={`text-4xl font-mono mt-4 text-right ${
+                  isDark ? 'text-white/50' : 'text-gray-400'
+                }`}
+              >
+                &lt;/EdgeAI.System&gt;
+              </p>
             </div>
           </div>
+
         </div>
       </div>
     </section>
   );
 };
+
+
+// const AboutSection = () => {
+//   const { theme, getClasses } = useTheme();
+//   const isDark = theme === 'dark';
+  
+//   return (
+//     <section id="about" className={`py-24 ${getClasses(theme, 'bg-secondary')} border-t ${getClasses(theme, 'border-separator')}`}>
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//         <div className="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
+//           <div>
+//             <h2 className={`text-4xl sm:text-5xl font-extrabold mb-6 ${getClasses(theme, 'text-primary')}`}>
+//               Pioneering <span className={getClasses(theme, 'text-highlight')}>Intelligent Transformation</span>
+//             </h2>
+//             <p className={`text-lg mb-8 ${getClasses(theme, 'text-secondary')}`}>
+//               EdgeAI was founded on the principle that transformative AI should be accessible, practical, and tailored. We move beyond generic tools, focusing instead on deep integration and customized models that solve your most pressing business challenges—from supply chain optimization for multinational corporations to smart customer engagement for growing SMEs.
+//             </p>
+//             <div className="space-y-4">
+//               <p className={`flex items-start ${getClasses(theme, 'text-primary')}`}>
+//                 <TrendingUp className={`h-6 w-6 ${getClasses(theme, 'text-primary')} mr-3 mt-1 flex-shrink-0`} />
+//                 <span className='font-semibold'>Focused Expertise:</span> We specialize exclusively in business AI, ensuring our strategies are relevant and results-driven.
+//               </p>
+//               <p className={`flex items-start ${getClasses(theme, 'text-primary')}`}>
+//                 <Cpu className={`h-6 w-6 ${getClasses(theme, 'text-primary')} mr-3 mt-1 flex-shrink-0`} />
+//                 <span className='font-semibold'>Custom Solutions:</span> Our models are built from the ground up to fit your unique operational context and data ecosystem.
+//               </p>
+//             </div>
+//           </div>
+//           <div className="mt-12 lg:mt-0 relative">
+//             {/* Clean, abstract visual representation of data/AI */}
+//             <div className={`p-8 rounded-lg shadow-2xl relative overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
+//               <div className={`absolute top-0 left-0 w-full h-full opacity-10 ${isDark ? 'bg-white/10' : 'bg-black/10'} pointer-events-none`}></div>
+//               <p className={`text-4xl font-mono mb-4 ${isDark ? 'text-white/50' : 'text-gray-400'}`}>&lt;DataPipeline&gt;</p>
+//               <div className={`space-y-4 ${getClasses(theme, 'text-secondary')}`}>
+//                 <div className={`flex justify-between border-b ${isDark ? 'border-gray-700' : 'border-gray-300'} pb-2`}>
+//                   <span className="font-mono">OptimizationModel.run()</span>
+//                   <span className={`font-semibold ${isDark ? 'text-green-400' : 'text-green-600'}`}>STATUS: COMPLETE</span>
+//                 </div>
+//                 <div className={`flex justify-between border-b ${isDark ? 'border-gray-700' : 'border-gray-300'} pb-2`}>
+//                   <span className="font-mono">PredictiveEngine.query('Q3_Revenue')</span>
+//                   <span className={`font-semibold ${getClasses(theme, 'text-primary')}`}>$12.4M Predicted</span>
+//                 </div>
+//                 <div className="flex justify-between">
+//                   <span className="font-mono">CustomerSegmentation.analyze()</span>
+//                   <span className={`font-semibold ${getClasses(theme, 'text-highlight')}`}>4 Segments Identified</span>
+//                 </div>
+//               </div>
+//               <p className={`text-4xl font-mono mt-4 text-right ${isDark ? 'text-white/50' : 'text-gray-400'}`}>&lt;/DataPipeline&gt;</p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// };
 
 // --- 4. Solutions Component ---
 
@@ -318,7 +464,7 @@ const SolutionsSection = () => {
 const statsData = [
   { value: "45%", label: "Average Efficiency Increase" },
   { value: "3.2x", label: "ROI on AI Investments" },
-  { value: "150+", label: "Businesses Transformed" },
+  { value: "1+", label: "Businesses Transformed" },
   { value: "99.8%", label: "Data Model Accuracy" },
 ];
 

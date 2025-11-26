@@ -563,7 +563,7 @@ const ContactSection = () => {
               <Mail className={`h-6 w-6 ${getClasses(theme, 'text-primary')} flex-shrink-0 mt-1`} />
               <div>
                 <p className={`font-medium ${getClasses(theme, 'text-highlight')}`}>Email Us</p>
-                <a href="mailto:info@edgeai.com" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>info@edgeai.com</a>
+                <a href="mailto:info@edgeai.com" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>edgeaiinc@gmail.com</a>
               </div>
             </div>
             
@@ -571,7 +571,7 @@ const ContactSection = () => {
               <Phone className={`h-6 w-6 ${getClasses(theme, 'text-primary')} flex-shrink-0 mt-1`} />
               <div>
                 <p className={`font-medium ${getClasses(theme, 'text-highlight')}`}>Call Us</p>
-                <a href="tel:+18005550199" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>+1 (800) 555-0199</a>
+                <a href="tel:+18005550199" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>+254724609783</a>
               </div>
             </div>
             

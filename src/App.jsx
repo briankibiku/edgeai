@@ -579,7 +579,7 @@ const ContactSection = () => {
               <MapPin className={`h-6 w-6 ${getClasses(theme, 'text-primary')} flex-shrink-0 mt-1`} />
               <div>
                 <p className={`font-medium ${getClasses(theme, 'text-highlight')}`}>Our Headquarters</p>
-                <p className={getClasses(theme, 'text-secondary')}>101 AI Drive, Suite 200, Silicon Valley, CA</p>
+                <p className={getClasses(theme, 'text-secondary')}>Delta Tower, Westlands.</p>
               </div>
             </div>
           </div>

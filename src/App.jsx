@@ -398,7 +398,7 @@ const AboutSection = () => {
 const solutionsData = [
   { 
     title: "Lora", 
-    description: "Custom-trained chatbots that understand your specific business context, enabling natural, accurate 24/7 customer and internal support.", 
+    description: "Custom AI representative that handle the entire customer journey—from first contact, qualification, end-to-end sales, and retention delivering accurate, context-aware support 24/7.", 
     icon: MessageSquareText 
   },
   { 

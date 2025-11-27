@@ -338,63 +338,6 @@ const AboutSection = () => {
   );
 };
 
-
-// const AboutSection = () => {
-//   const { theme, getClasses } = useTheme();
-//   const isDark = theme === 'dark';
-  
-//   return (
-//     <section id="about" className={`py-24 ${getClasses(theme, 'bg-secondary')} border-t ${getClasses(theme, 'border-separator')}`}>
-//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//         <div className="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
-//           <div>
-//             <h2 className={`text-4xl sm:text-5xl font-extrabold mb-6 ${getClasses(theme, 'text-primary')}`}>
-//               Pioneering <span className={getClasses(theme, 'text-highlight')}>Intelligent Transformation</span>
-//             </h2>
-//             <p className={`text-lg mb-8 ${getClasses(theme, 'text-secondary')}`}>
-//               EdgeAI was founded on the principle that transformative AI should be accessible, practical, and tailored. We move beyond generic tools, focusing instead on deep integration and customized models that solve your most pressing business challenges—from supply chain optimization for multinational corporations to smart customer engagement for growing SMEs.
-//             </p>
-//             <div className="space-y-4">
-//               <p className={`flex items-start ${getClasses(theme, 'text-primary')}`}>
-//                 <TrendingUp className={`h-6 w-6 ${getClasses(theme, 'text-primary')} mr-3 mt-1 flex-shrink-0`} />
-//                 <span className='font-semibold'>Focused Expertise:</span> We specialize exclusively in business AI, ensuring our strategies are relevant and results-driven.
-//               </p>
-//               <p className={`flex items-start ${getClasses(theme, 'text-primary')}`}>
-//                 <Cpu className={`h-6 w-6 ${getClasses(theme, 'text-primary')} mr-3 mt-1 flex-shrink-0`} />
-//                 <span className='font-semibold'>Custom Solutions:</span> Our models are built from the ground up to fit your unique operational context and data ecosystem.
-//               </p>
-//             </div>
-//           </div>
-//           <div className="mt-12 lg:mt-0 relative">
-//             {/* Clean, abstract visual representation of data/AI */}
-//             <div className={`p-8 rounded-lg shadow-2xl relative overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
-//               <div className={`absolute top-0 left-0 w-full h-full opacity-10 ${isDark ? 'bg-white/10' : 'bg-black/10'} pointer-events-none`}></div>
-//               <p className={`text-4xl font-mono mb-4 ${isDark ? 'text-white/50' : 'text-gray-400'}`}>&lt;DataPipeline&gt;</p>
-//               <div className={`space-y-4 ${getClasses(theme, 'text-secondary')}`}>
-//                 <div className={`flex justify-between border-b ${isDark ? 'border-gray-700' : 'border-gray-300'} pb-2`}>
-//                   <span className="font-mono">OptimizationModel.run()</span>
-//                   <span className={`font-semibold ${isDark ? 'text-green-400' : 'text-green-600'}`}>STATUS: COMPLETE</span>
-//                 </div>
-//                 <div className={`flex justify-between border-b ${isDark ? 'border-gray-700' : 'border-gray-300'} pb-2`}>
-//                   <span className="font-mono">PredictiveEngine.query('Q3_Revenue')</span>
-//                   <span className={`font-semibold ${getClasses(theme, 'text-primary')}`}>$12.4M Predicted</span>
-//                 </div>
-//                 <div className="flex justify-between">
-//                   <span className="font-mono">CustomerSegmentation.analyze()</span>
-//                   <span className={`font-semibold ${getClasses(theme, 'text-highlight')}`}>4 Segments Identified</span>
-//                 </div>
-//               </div>
-//               <p className={`text-4xl font-mono mt-4 text-right ${isDark ? 'text-white/50' : 'text-gray-400'}`}>&lt;/DataPipeline&gt;</p>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// };
-
-// --- 4. Solutions Component ---
-
 const solutionsData = [
   { 
     title: "Lora", 

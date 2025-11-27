@@ -403,7 +403,7 @@ const solutionsData = [
   },
   { 
     title: "Iris360", 
-    description: "Advanced OCR APIs that digitize documents, extract key data points, and automate entry from invoices, receipts, and forms instantly.", 
+    description: "Advanced OCR APIs that digitize documents, extract key data points, and automate entry from ID's, logbooks, and forms instantly.", 
     icon: ScanEye 
   },
   { 

@@ -1,10 +1,8 @@
 import React, { useState, createContext, useContext, useEffect } from 'react';
 import {
   Menu, X, ArrowRight, TrendingUp, Cpu, Users, Mail, Phone, MapPin, BarChart, Sun, Moon, MessageSquareText, ScanEye, Waypoints, Zap } from 'lucide-react';
-import logo from './assets/edgeaiblack.png';
-import logoWhite from './assets/edgeaiwhite.png';
-// import SolutionsSection from './components/SolutionsSection';
-// import ContactSection from './components/Contact';
+import logo from "./assets/opsbg.png";
+import logoWhite from "./assets/opsbgw.png"; 
 
 // --- Global Constants and Logo ---
 
@@ -593,7 +591,7 @@ const Footer = () => {
           
           <div className="mt-8 md:mt-0 md:order-1">
             <p className={`text-center text-base ${getClasses(theme, 'text-secondary')}`}>
-              &copy; {new Date().getFullYear()} EdgeAI, Inc. All rights reserved.
+              &copy; {new Date().getFullYear()} OpsflowAI, Inc. All rights reserved.
             </p>
           </div>
         </div>

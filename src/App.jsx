@@ -1,8 +1,10 @@
 import React, { useState, createContext, useContext, useEffect } from 'react';
 import {
   Menu, X, ArrowRight, TrendingUp, Cpu, Users, Mail, Phone, MapPin, BarChart, Sun, Moon, MessageSquareText, ScanEye, Waypoints, Zap } from 'lucide-react';
+import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import logo from "./assets/opsbg.png";
-import logoWhite from "./assets/opsbgw.png"; 
+import logoWhite from "./assets/opsbgw.png";
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 // --- Global Constants and Logo ---
 
@@ -59,15 +61,40 @@ const Navbar = () => {
   const { theme, toggleTheme, getClasses } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const isDark = theme === 'dark'; // Defined locally for convenience
+  const location = useLocation();
+  const navigate = useNavigate();
   
   // Utility function for smooth scrolling
   const scrollToSection = (id) => {
-    const section = document.querySelector(id);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
+    const isHome = location.pathname === '/';
+    
+    if (!isHome) {
+      // If not on home page, navigate to home with the hash
+      navigate('/' + id);
+      setIsOpen(false);
+      return;
     }
-    setIsOpen(false); // Close menu on mobile after selection
+
+    // If on home page, scroll directly
+    const element = document.querySelector(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsOpen(false);
   };
+  
+  // Effect to handle scrolling when arriving at home page with a hash
+  useEffect(() => {
+    if (location.pathname === '/' && location.hash) {
+      const id = location.hash;
+      const element = document.querySelector(id);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  }, [location]);
   
   const navBg = isDark ? 'bg-black/90 shadow-xl' : 'bg-white/90 shadow-md';
   const navText = isDark ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-black';
@@ -440,6 +467,21 @@ const StatsSection = () => {
 
 // --- 6. Contact Us Component ---
 
+const InputField = ({ label, name, type = 'text', required = true, value, onChange, theme, getClasses }) => (
+  <div>
+    <label htmlFor={name} className={`block text-sm font-medium ${getClasses(theme, 'text-highlight')}`}>{label}</label>
+    <input
+      type={type}
+      name={name}
+      id={name}
+      required={required}
+      value={value}
+      onChange={onChange}
+      className={`mt-1 block w-full px-4 py-3 rounded-lg shadow-sm sm:text-sm transition duration-300 ${getClasses(theme, 'input-bg')}`}
+    />
+  </div>
+);
+
 const ContactSection = () => {
   const { theme, getClasses } = useTheme();
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -467,20 +509,6 @@ const ContactSection = () => {
     }, 1500);
   };
 
-  const InputField = ({ label, name, type = 'text', required = true }) => (
-    <div>
-      <label htmlFor={name} className={`block text-sm font-medium ${getClasses(theme, 'text-highlight')}`}>{label}</label>
-      <input
-        type={type}
-        name={name}
-        id={name}
-        required={required}
-        value={formData[name]}
-        onChange={handleChange}
-        className={`mt-1 block w-full px-4 py-3 rounded-lg shadow-sm sm:text-sm transition duration-300 ${getClasses(theme, 'input-bg')}`}
-      />
-    </div>
-  );
 
   const isDark = theme === 'dark';
 
@@ -529,8 +557,23 @@ const ContactSection = () => {
           <div className={`lg:col-span-2 p-6 rounded-xl border ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-gray-100 border-gray-200'}`}>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InputField label="Full Name" name="name" />
-                <InputField label="Work Email" name="email" type="email" />
+                <InputField 
+                    label="Full Name" 
+                    name="name" 
+                    value={formData.name} 
+                    onChange={handleChange} 
+                    theme={theme} 
+                    getClasses={getClasses} 
+                />
+                <InputField 
+                    label="Work Email" 
+                    name="email" 
+                    type="email" 
+                    value={formData.email} 
+                    onChange={handleChange} 
+                    theme={theme} 
+                    getClasses={getClasses} 
+                />
               </div>
 
               <div>
@@ -580,19 +623,66 @@ const Footer = () => {
 
   return (
     <footer className={`${getClasses(theme, 'bg-secondary')} border-t ${getClasses(theme, 'border-separator')}`}>
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="md:flex md:items-center md:justify-between">
-          
-          <div className="flex justify-center md:order-2 space-x-6">
-            {/* Social Icons Placeholder */}
-            <a href="#" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>LinkedIn</a>
-            <a href="#" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>Twitter</a>
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-1">
+             <div className="flex-shrink-0 mb-6">
+                <Link to="/" className="flex items-center space-x-2">
+                  <img
+                    src={isDark ?  logoWhite : logo}
+                    alt="EdgeAI Logo"
+                    className="h-20 w-auto object-contain"
+                  />
+                </Link>
+              </div>
+              <p className={`text-sm ${getClasses(theme, 'text-secondary')} max-w-xs`}>
+                Empowering Kenyan businesses with cutting-edge AI solutions for global competitiveness.
+              </p>
           </div>
           
-          <div className="mt-8 md:mt-0 md:order-1">
-            <p className={`text-center text-base ${getClasses(theme, 'text-secondary')}`}>
-              &copy; {new Date().getFullYear()} OpsflowAI, Inc. All rights reserved.
-            </p>
+          <div className="md:col-span-1">
+            <h4 className={`text-lg font-bold mb-4 ${getClasses(theme, 'text-primary')}`}>Quick Links</h4>
+            <ul className="space-y-2">
+              {NAV_ITEMS.map((item) => (
+                <li key={item.name}>
+                  <button 
+                    onClick={() => {
+                       const section = document.querySelector(item.href);
+                       if (section) section.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className={`text-sm ${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}
+                  >
+                    {item.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="md:col-span-1">
+            <h4 className={`text-lg font-bold mb-4 ${getClasses(theme, 'text-primary')}`}>Legal</h4>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/privacy" className={`text-sm ${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <a href="#" className={`text-sm ${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>
+                  Terms of Service
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
+          <p className={`text-center text-sm ${getClasses(theme, 'text-secondary')}`}>
+            &copy; {new Date().getFullYear()} OpsflowAI, Inc. All rights reserved.
+          </p>
+          <div className="flex mt-4 md:mt-0 space-x-6">
+            <a href="#" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>LinkedIn</a>
+            <a href="#" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>Twitter</a>
           </div>
         </div>
       </div>
@@ -601,7 +691,20 @@ const Footer = () => {
 };
 
 
-// --- 8. Main App Component (Provides Context) ---
+// --- 8. Home Page Component ---
+const HomePage = () => {
+  return (
+    <main>
+      <HeroSection />
+      <AboutSection />
+      <SolutionsSection />
+      <StatsSection />
+      <ContactSection />
+    </main>
+  );
+};
+
+// --- 9. Main App Component (Provides Context) ---
 
 const App = () => {
   const [theme, setTheme] = useState('light'); // Default to dark mode
@@ -622,42 +725,43 @@ const App = () => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={themeContextValue}>
-      <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'bg-black' : 'bg-blue-50'}`}>
-        <style>{`
-          /* Custom scroll behavior for the entire app */
-          html {
-            scroll-behavior: smooth;
-          }
-          /* Theme-specific body background */
-          html.dark {
-            background-color: #000000;
-          }
-          html.light {
-            background-color: #ffffff;
-          }
-          /* Hide scrollbar for a cleaner look while allowing scrolling */
-          body {
-            scrollbar-width: none; /* Firefox */
-          }
-          body::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-          }
-        `}</style>
-        
-        <Navbar />
-        
-        <main>
-          <HeroSection />
-          <AboutSection />
-          <SolutionsSection />
-          <StatsSection />
-          <ContactSection />
-        </main>
-        
-        <Footer />
-      </div>
-    </ThemeContext.Provider>
+    <BrowserRouter>
+      <ThemeContext.Provider value={themeContextValue}>
+        <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'bg-black' : 'bg-blue-50'}`}>
+          <style>{`
+            /* Custom scroll behavior for the entire app */
+            html {
+              scroll-behavior: smooth;
+            }
+            /* Theme-specific body background */
+            html.dark {
+              background-color: #000000;
+            }
+            html.light {
+              background-color: #ffffff;
+            }
+            /* Hide scrollbar for a cleaner look while allowing scrolling */
+            body {
+              scrollbar-width: none; /* Firefox */
+            }
+            body::-webkit-scrollbar {
+              display: none; /* Chrome, Safari, Opera */
+            }
+          `}</style>
+          
+          <Navbar />
+          
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/privacy" element={<PrivacyPolicy theme={theme} getClasses={getThemeClasses} />} />
+            {/* Catch-all redirect to home page */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          
+          <Footer />
+        </div>
+      </ThemeContext.Provider>
+    </BrowserRouter>
   );
 };
 

@@ -1,1 +1,217 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ─── Design tokens ─────────────────────────────────────────── */
+:root {
+  --blue:      #1a73e8;
+  --blue-dark: #1557b0;
+  --blue-soft: #e8f0fe;
+  --teal:      #00897b;
+  --purple:    #7c4dff;
+  --text-main: #202124;
+  --text-sub:  #5f6368;
+  --text-hint: #9aa0a6;
+  --surface:   #ffffff;
+  --surface-2: #f8f9fa;
+  --border:    #e8eaed;
+  --shadow-sm: 0 1px 3px rgba(60,64,67,.12), 0 1px 2px rgba(60,64,67,.08);
+  --shadow-md: 0 4px 12px rgba(60,64,67,.15), 0 2px 6px rgba(60,64,67,.10);
+  --shadow-lg: 0 10px 40px rgba(60,64,67,.18), 0 4px 12px rgba(60,64,67,.12);
+}
+
+/* dark overrides */
+.dark {
+  --text-main: #e8eaed;
+  --text-sub:  #9aa0a6;
+  --text-hint: #5f6368;
+  --surface:   #1c1c1e;
+  --surface-2: #2c2c2e;
+  --border:    #3c3c3e;
+  color-scheme: dark;
+}
+.light { color-scheme: light; }
+
+/* ─── Base ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--text-main);
+}
+
+/* ─── Typography ─────────────────────────────────────────────── */
+.font-display { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #dadce0; border-radius: 99px; }
+.dark ::-webkit-scrollbar-thumb { background: #3c3c3e; }
+
+/* ─── Buttons ────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 100px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  white-space: nowrap;
+}
+.btn-primary {
+  padding: 13px 28px;
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(26,115,232,.4);
+}
+.btn-primary:hover {
+  background: var(--blue-dark);
+  box-shadow: 0 4px 12px rgba(26,115,232,.45);
+  transform: translateY(-1px);
+}
+.btn-outline {
+  padding: 12px 26px;
+  background: transparent;
+  color: var(--blue);
+  border: 1.5px solid var(--blue);
+}
+.btn-outline:hover {
+  background: var(--blue-soft);
+}
+.dark .btn-outline {
+  color: #8ab4f8;
+  border-color: #8ab4f8;
+}
+.dark .btn-outline:hover {
+  background: rgba(138,180,248,0.1);
+}
+.btn-ghost {
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--text-sub);
+}
+.btn-ghost:hover {
+  background: var(--surface-2);
+  color: var(--text-main);
+}
+
+/* ─── Cards ──────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* ─── Section label ──────────────────────────────────────────── */
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blue);
+  display: block;
+  margin-bottom: 12px;
+}
+
+/* ─── Gradient text ──────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #1a73e8 0%, #00897b 50%, #7c4dff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Hero animated orb ──────────────────────────────────────── */
+@keyframes orb-pulse {
+  0%, 100% { transform: scale(1) translate(0,0); opacity: 0.5; }
+  33%       { transform: scale(1.08) translate(20px,-15px); opacity: 0.7; }
+  66%       { transform: scale(0.95) translate(-15px,10px); opacity: 0.4; }
+}
+.orb { animation: orb-pulse 8s ease-in-out infinite; }
+.orb-2 { animation: orb-pulse 11s ease-in-out infinite reverse; }
+
+/* ─── Fade-up entry ──────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up   { animation: fade-up 0.65s ease forwards; }
+.delay-1   { animation-delay: 0.1s; opacity: 0; }
+.delay-2   { animation-delay: 0.22s; opacity: 0; }
+.delay-3   { animation-delay: 0.36s; opacity: 0; }
+.delay-4   { animation-delay: 0.5s; opacity: 0; }
+
+/* ─── Stat counter ───────────────────────────────────────────── */
+.stat-num {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 2.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #1a73e8, #00897b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Mobile responsiveness ──────────────────────────────────── */
+@media (max-width: 640px) {
+
+  /* Reduce section padding */
+  section { padding-top: 64px !important; padding-bottom: 64px !important; }
+
+  /* Hero: stack CTAs vertically */
+  .hero-cta {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .hero-cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Hero: trust indicators wrap tightly */
+  .hero-trust {
+    gap: 14px !important;
+    margin-top: 36px !important;
+    padding-top: 24px !important;
+  }
+
+  /* Stats grid → single column */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Footer grid → single column */
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  /* Contact grid → single column */
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+
+  /* Reduce stat number size */
+  .stat-num { font-size: 2rem !important; }
+
+  /* Eyebrow spacing */
+  .eyebrow { margin-bottom: 8px !important; }
+}
+
+@media (max-width: 400px) {
+  /* Extra small: stats go 1 column */
+  .stats-grid { grid-template-columns: 1fr !important; }
+}

@@ -1,768 +1,1030 @@
-import React, { useState, createContext, useContext, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import {
-  Menu, X, ArrowRight, TrendingUp, Cpu, Users, Mail, Phone, MapPin, BarChart, Sun, Moon, MessageSquareText, ScanEye, Waypoints, Zap } from 'lucide-react';
-import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import logo from "./assets/opsbg.png";
-import logoWhite from "./assets/opsbgw.png";
+  BrowserRouter, Routes, Route, Link,
+  useLocation, useNavigate, Navigate
+} from 'react-router-dom';
+import {
+  Menu, X, Sun, Moon, ArrowRight,
+  Settings2, MessageSquare, BrainCircuit,
+  CheckCircle2, Mail, Phone, MapPin, ChevronDown,
+  Zap, BarChart3, Shield, Clock, Users, Layers
+} from 'lucide-react';
+import logo      from './assets/opsbg.png';
+import logoWhite from './assets/opsbgw.png';
 import PrivacyPolicy from './components/PrivacyPolicy';
 
-// --- Global Constants and Logo ---
+/* ── Theme ──────────────────────────────────────────────────── */
+const ThemeCtx = createContext({ theme: 'light', toggle: () => {} });
+const useTheme = () => useContext(ThemeCtx);
 
-// The logo provided is white. For light mode, we invert the colors of the image
-// to maintain visibility on a white background.
-const LOGO_URL = "uploaded:edgeaiwhite.png-4712083e-c80c-4541-81b9-642b8883e8f4";
-
-const NAV_ITEMS = [
-  { name: 'About', href: '#about' },
-  { name: 'Solutions', href: '#solutions' },
-  { name: 'Impact', href: '#impact' },
-  { name: 'Contact', href: '#contact' },
+const NAV_LINKS = [
+  { label: 'Solutions', href: '#solutions' },
+  { label: 'Why Opsflow', href: '#why' },
+  { label: 'Results',   href: '#impact' },
+  { label: 'Contact',   href: '#contact' },
 ];
 
-// --- Theme Context (Best Practice for Global State) ---
-const ThemeContext = createContext({
-  theme: 'dark',
-  toggleTheme: () => {},
-  getClasses: () => '', // Utility function for dynamic class generation
-});
-
-// Utility hook to access theme
-const useTheme = () => useContext(ThemeContext);
-
-// Utility function to map semantic elements to specific Tailwind classes based on theme
-const getThemeClasses = (theme, element) => {
-  const isDark = theme === 'dark';
-  
-  // Theme-Agnostic Defaults for common elements
-  switch (element) {
-    case 'bg-main': return isDark ? 'bg-black text-white' : 'bg-blue-50 text-gray-900';
-    case 'bg-secondary': return isDark ? 'bg-gray-950 text-white border-gray-800' : 'bg-gray-50 text-gray-900 border-gray-200';
-    case 'text-primary': return isDark ? 'text-white' : 'text-gray-900';
-    case 'text-secondary': return isDark ? 'text-gray-400' : 'text-gray-600';
-    case 'text-highlight': return isDark ? 'text-gray-300' : 'text-gray-600';
-    case 'card-bg': return isDark ? 'bg-gray-900 border-gray-800 hover:border-white' : 'bg-white border-gray-200 hover:border-black shadow-lg';
-    case 'button-primary': return isDark ? 'text-black bg-white hover:bg-gray-200' : 'text-white bg-black hover:bg-gray-800';
-    // FIX: Added a proper semantic class for the outline button used in SolutionsSection
-    case 'button-secondary-outline':
-      return isDark 
-        ? 'text-white border-white hover:bg-gray-900' 
-        : 'text-gray-900 border-gray-900 hover:bg-gray-100';
-    case 'input-bg': return isDark ? 'bg-gray-800 border-gray-700 text-white focus:ring-white focus:border-white' : 'bg-gray-100 border-gray-300 text-gray-900 focus:ring-black focus:border-black';
-    case 'border-separator': return isDark ? 'border-gray-800' : 'border-gray-200';
-    case 'icon-bg': return isDark ? 'bg-gray-700' : 'bg-gray-200';
-    default: return '';
-  }
+const go = (id) => {
+  const el = document.querySelector(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
 };
 
-
-// --- 1. Navbar Component (Responsive) ---
-
-const Navbar = () => {
-  const { theme, toggleTheme, getClasses } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
-  const isDark = theme === 'dark'; // Defined locally for convenience
+/* ══════════════════════════════════════════════════════════════
+   NAVBAR
+══════════════════════════════════════════════════════════════ */
+function Navbar() {
+  const { theme, toggle } = useTheme();
   const location = useLocation();
-  const navigate = useNavigate();
-  
-  // Utility function for smooth scrolling
-  const scrollToSection = (id) => {
-    const isHome = location.pathname === '/';
-    
-    if (!isHome) {
-      // If not on home page, navigate to home with the hash
-      navigate('/' + id);
-      setIsOpen(false);
-      return;
-    }
+  const navigate  = useNavigate();
+  const [menuOpen,  setMenuOpen]  = useState(false);
+  const [scrolled,  setScrolled]  = useState(false);
+  const dark = theme === 'dark';
 
-    // If on home page, scroll directly
-    const element = document.querySelector(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsOpen(false);
-  };
-  
-  // Effect to handle scrolling when arriving at home page with a hash
   useEffect(() => {
-    if (location.pathname === '/' && location.hash) {
-      const id = location.hash;
-      const element = document.querySelector(id);
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      }
-    }
-  }, [location]);
-  
-  const navBg = isDark ? 'bg-black/90 shadow-xl' : 'bg-white/90 shadow-md';
-  const navText = isDark ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-black';
-  const logoFilter = isDark ? '' : 'filter invert'; // Invert white logo for light mode
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const navigate_to = (href) => {
+    setMenuOpen(false);
+    if (location.pathname !== '/') { navigate('/' + href); return; }
+    go(href);
+  };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm ${navBg}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <a href="#" onClick={() => scrollToSection('#home')} className="flex items-center space-x-2">
-              <img
-                src={isDark ?  logoWhite : logo}
-                alt="EdgeAI Logo"
-                className="h-30 w-auto sm:h-30 md:h-34 lg:h-36 object-contain"
-              />
-            </a>
-          </div>
+    <header
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        background: dark
+          ? scrolled ? 'rgba(28,28,30,0.92)' : 'transparent'
+          : scrolled ? 'rgba(255,255,255,0.92)' : 'transparent',
+        borderBottom: scrolled
+          ? dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)'
+          : '1px solid transparent',
+        transition: 'all 0.25s ease',
+      }}
+    >
+      <style>{`
+        .nav-desktop { display: none; }
+        .nav-mobile  { display: flex; }
+        .nav-mobile-drawer { display: block; }
+        @media (min-width: 768px) {
+          .nav-desktop { display: flex; }
+          .nav-mobile  { display: none !important; }
+          .nav-mobile-drawer { display: none !important; }
+        }
+      `}</style>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              {NAV_ITEMS.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
-                  className={`transition duration-300 px-3 py-2 rounded-md text-sm font-medium ${navText}`}
-                >
-                  {item.name}
-                </a>
-              ))}
-              <button
-                onClick={(e) => { e.preventDefault(); scrollToSection('#contact'); }}
-                className={`ml-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm transition duration-300 ${getClasses(theme, 'button-primary')}`}
-              >
-                Start AI Journey
-              </button>
-              
-              {/* Theme Toggle Button (Desktop) */}
-              <button
-                onClick={toggleTheme}
-                className={`p-2 rounded-full transition duration-300 ${isDark ? 'text-white hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-100'}`}
-              >
-                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </button>
-            </div>
-          </nav>
+      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 76 }}>
 
-          {/* Mobile Menu Button and Theme Toggle (Combined for Mobile) */}
-          <div className="md:hidden flex items-center space-x-2">
+        {/* Logo — larger & more prominent */}
+        <button onClick={() => navigate_to('#home')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 0 }}>
+          <img
+            src={dark ? logoWhite : logo}
+            alt="Opsflow AI"
+            style={{ height: 160, width: 'auto', objectFit: 'contain' }}
+          />
+        </button>
+
+        {/* Desktop nav links */}
+        <nav className="nav-desktop" style={{ alignItems: 'center', gap: 36 }}>
+          {NAV_LINKS.map(n => (
             <button
-                onClick={toggleTheme}
-                className={`p-2 rounded-md transition duration-300 ${isDark ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-black hover:bg-gray-200'}`}
-              >
-                {isDark ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
-              </button>
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className={`inline-flex items-center justify-center p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-inset ${isDark ? 'text-gray-400 hover:text-white hover:bg-gray-700 focus:ring-white' : 'text-gray-600 hover:text-black hover:bg-gray-200 focus:ring-black'}`}
+              key={n.label}
+              onClick={() => navigate_to(n.href)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: '0.9rem', fontWeight: 500,
+                color: dark ? '#9aa0a6' : '#5f6368',
+                transition: 'color 0.15s',
+                fontFamily: 'inherit',
+              }}
+              onMouseEnter={e => e.target.style.color = dark ? '#e8eaed' : '#202124'}
+              onMouseLeave={e => e.target.style.color = dark ? '#9aa0a6' : '#5f6368'}
             >
-              <span className="sr-only">Open main menu</span>
-              {isOpen ? <X className="block h-6 w-6" aria-hidden="true" /> : <Menu className="block h-6 w-6" aria-hidden="true" />}
+              {n.label}
             </button>
-          </div>
+          ))}
+        </nav>
+
+        {/* Desktop actions */}
+        <div className="nav-desktop" style={{ alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={toggle}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: '8px',
+              borderRadius: '50%', color: dark ? '#9aa0a6' : '#5f6368',
+              display: 'flex', alignItems: 'center',
+            }}
+          >
+            {dark ? <Sun size={18}/> : <Moon size={18}/>}
+          </button>
+          <button
+            onClick={() => navigate_to('#contact')}
+            className="btn btn-primary"
+            style={{ marginLeft: 8, fontSize: '0.875rem', padding: '10px 22px' }}
+          >
+            Get started
+          </button>
+        </div>
+
+        {/* Mobile toggle — only shown on small screens */}
+        <div className="nav-mobile" style={{ alignItems: 'center', gap: 8 }}>
+          <button onClick={toggle} style={{ background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#9aa0a6' : '#5f6368', display: 'flex' }}>
+            {dark ? <Sun size={18}/> : <Moon size={18}/>}
+          </button>
+          <button onClick={() => setMenuOpen(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: dark ? '#e8eaed' : '#202124', display: 'flex' }}>
+            {menuOpen ? <X size={22}/> : <Menu size={22}/>}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Menu Panel */}
-      {isOpen && (
-        <div className={`md:hidden ${isDark ? 'bg-black/95' : 'bg-white/95'} border-t ${getClasses(theme, 'border-separator')}`}>
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                onClick={(e) => { e.preventDefault(); scrollToSection(item.href); }}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition duration-300 ${isDark ? 'text-gray-300 hover:bg-gray-800 hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-black'}`}
-              >
-                {item.name}
-              </a>
-            ))}
-            <button 
-                onClick={(e) => { e.preventDefault(); scrollToSection('#contact'); }}
-                className={`mt-2 block w-full text-center px-4 py-2 border border-transparent text-base font-medium rounded-full shadow-sm transition duration-300 ${getClasses(theme, 'button-primary')}`}
-              >
-                Start AI Journey
+      {/* Mobile drawer — only shown on small screens */}
+      {menuOpen && (
+        <div className="nav-mobile-drawer" style={{
+          padding: '8px 20px 20px',
+          background: dark ? '#1c1c1e' : '#fff',
+          borderTop: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #e8eaed',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+        }}>
+          {NAV_LINKS.map(n => (
+            <button
+              key={n.label}
+              onClick={() => navigate_to(n.href)}
+              style={{
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '14px 12px', background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: '1rem', fontWeight: 500,
+                color: dark ? '#e8eaed' : '#202124',
+                borderRadius: 10, fontFamily: 'inherit',
+                transition: 'background 0.15s',
+              }}
+            >
+              {n.label}
             </button>
-          </div>
+          ))}
+          <button
+            onClick={() => navigate_to('#contact')}
+            className="btn btn-primary"
+            style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}
+          >
+            Get started
+          </button>
         </div>
       )}
     </header>
   );
-};
+}
 
-// --- 2. Hero Component ---
+/* ══════════════════════════════════════════════════════════════
+   HERO  — AI Automations — Neural net canvas + waves
+══════════════════════════════════════════════════════════════ */
+function Hero() {
+  const { theme } = useTheme();
+  const dark = theme === 'dark';
+  const canvasRef = React.useRef(null);
 
-const HeroSection = () => {
-  const { theme, getClasses } = useTheme();
-  return (
-    <section id="home" className={`pt-20 min-h-screen flex items-center justify-center ${getClasses(theme, 'bg-main')}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-        <h1 className="text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight mb-6 leading-tight">
-          Gain the <span className="text-lime-600">Edge</span> with AI.
-        </h1>
-        <p className={`text-xl sm:text-2xl max-w-3xl mx-auto mb-10 ${getClasses(theme, 'text-secondary')}`}>
-          Supercharging businesses with bespoke, AI solutions for real-world impact and exponential growth.
-        </p>
-        <button 
-          onClick={(e) => { e.preventDefault(); document.querySelector('#solutions').scrollIntoView({ behavior: 'smooth' }); }}
-          className={`inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-full shadow-lg transition duration-300 transform hover:scale-105 ${getClasses(theme, 'button-primary')}`}
-        >
-          Explore Our AI Solutions <ArrowRight className="ml-3 h-5 w-5" />
-        </button>
-      </div>
-    </section>
-  );
-};
+  const bg            = dark ? '#0a0a10' : '#f0f4ff';
+  const textPrimary   = dark ? '#e8eaed' : '#202124';
+  const textSecondary = dark ? '#9aa0a6' : '#5f6368';
 
-// --- 3. About Component ---
-const AboutSection = () => {
-  const { theme, getClasses } = useTheme();
-  const isDark = theme === 'dark';
+  // ── Neural-net particle canvas ────────────────────────────────
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const resize = () => {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+
+    const NODE_COLOR  = dark ? 'rgba(96,165,250,'  : 'rgba(26,115,232,';
+    const LINE_COLOR  = dark ? 'rgba(96,165,250,'  : 'rgba(26,115,232,';
+    const PULSE_COLOR = dark ? 'rgba(147,197,253,' : 'rgba(96,165,250,';
+
+    const COUNT = Math.max(Math.floor((canvas.width * canvas.height) / 9000), 45);
+    const nodes = Array.from({ length: COUNT }, () => ({
+      x:  Math.random() * canvas.width,
+      y:  Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.45,
+      vy: (Math.random() - 0.5) * 0.45,
+      r:  Math.random() * 2.2 + 1.2,
+    }));
+
+    const pulses = [];
+    const MAX_PULSES  = 22;
+    const CONNECT_DIST = 165;
+    let frame;
+
+    const tick = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      nodes.forEach(n => {
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < 0 || n.x > canvas.width)  n.vx *= -1;
+        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+      });
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const d  = Math.sqrt(dx * dx + dy * dy);
+          if (d < CONNECT_DIST) {
+            const alpha = (1 - d / CONNECT_DIST) * (dark ? 0.42 : 0.32);
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `${LINE_COLOR}${alpha})`;
+            ctx.lineWidth = 0.9;
+            ctx.stroke();
+
+            if (pulses.length < MAX_PULSES && Math.random() < 0.001) {
+              pulses.push({ from: i, to: j, t: 0, speed: 0.006 + Math.random() * 0.009 });
+            }
+          }
+        }
+      }
+
+      for (let p = pulses.length - 1; p >= 0; p--) {
+        const pulse = pulses[p];
+        pulse.t += pulse.speed;
+        if (pulse.t >= 1) { pulses.splice(p, 1); continue; }
+        const a  = nodes[pulse.from];
+        const b  = nodes[pulse.to];
+        const px = a.x + (b.x - a.x) * pulse.t;
+        const py = a.y + (b.y - a.y) * pulse.t;
+        const al = Math.sin(pulse.t * Math.PI) * (dark ? 0.95 : 0.80);
+        ctx.beginPath();
+        ctx.arc(px, py, 3, 0, Math.PI * 2);
+        ctx.fillStyle = `${PULSE_COLOR}${al})`;
+        ctx.fill();
+      }
+
+      nodes.forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = `${NODE_COLOR}${dark ? 0.75 : 0.6})`;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r + 2.5, 0, Math.PI * 2);
+        ctx.strokeStyle = `${NODE_COLOR}${dark ? 0.18 : 0.14})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+
+      frame = requestAnimationFrame(tick);
+    };
+
+    tick();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    return () => { cancelAnimationFrame(frame); ro.disconnect(); };
+  }, [dark]);
 
   return (
     <section
-      id="about"
-      className={`py-24 ${getClasses(theme, 'bg-secondary')} border-t ${getClasses(
-        theme,
-        'border-separator'
-      )}`}
+      id="home"
+      style={{
+        position: 'relative',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        padding: '120px 28px 80px',
+        background: bg,
+        overflow: 'hidden',
+      }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
-          <div>
-            <h2
-              className={`text-4xl sm:text-5xl font-extrabold mb-6 ${getClasses(
-                theme,
-                'text-primary'
-              )}`}
-            >
-              Building the Future with{" "}
-              <span className={getClasses(theme, 'text-highlight')}>
-                Intelligent Systems
-              </span>
-            </h2>
+      {/* ── Neural network canvas ─────────────────────────────── */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+          pointerEvents: 'none', zIndex: 0,
+        }}
+      />
 
-            <p className={`text-lg mb-8 ${getClasses(theme, 'text-secondary')}`}>
-              EdgeAI exists for one purpose: to turn AI from a buzzword into a
-              real competitive advantage. We engineer solutions that plug
-              straight into your operations—lean, custom, and tuned for business
-              impact. No generic templates. No one-size-fits-all models. Only
-              practical intelligence that moves numbers and sharpens execution.
-            </p>
-
-            <div className="space-y-4">
-              <p className={`flex items-start ${getClasses(theme, 'text-primary')}`}>
-                <TrendingUp
-                  className={`h-6 w-6 ${getClasses(theme, 'text-primary')} mr-3 mt-1 flex-shrink-0`}
-                />
-                <span className="font-semibold">Business-First AI:</span> Every
-                solution is engineered to drive outcomes—efficiency, revenue,
-                accuracy, scale. No theory. All impact.
-              </p>
-
-              <p className={`flex items-start ${getClasses(theme, 'text-primary')}`}>
-                <Cpu
-                  className={`h-6 w-6 ${getClasses(theme, 'text-primary')} mr-3 mt-1 flex-shrink-0`}
-                />
-                <span className="font-semibold">Tailor-Made Models:</span> We
-                train and deploy models shaped around your data, your workflows,
-                and your competitive landscape. Precision over approximation.
-              </p>
-            </div>
-          </div>
-          <div className="mt-12 lg:mt-0 relative">
-            <div
-              className={`p-8 rounded-lg shadow-2xl relative overflow-hidden ${
-                isDark ? 'bg-gray-800' : 'bg-gray-100'
-              }`}
-            >
-              <div
-                className={`absolute top-0 left-0 w-full h-full opacity-10 ${
-                  isDark ? 'bg-white/10' : 'bg-black/10'
-                } pointer-events-none`}
-              ></div>
-
-              <p
-                className={`text-4xl font-mono mb-4 ${
-                  isDark ? 'text-white/50' : 'text-gray-400'
-                }`}
-              >
-                &lt;EdgeAI.System&gt;
-              </p>
-
-              <div className={`space-y-4 ${getClasses(theme, 'text-secondary')}`}>
-
-                {/* AUTOMATION */}
-                <div
-                  className={`flex justify-between border-b ${
-                    isDark ? 'border-gray-700' : 'border-gray-300'
-                  } pb-2`}
-                >
-                  <span className="font-mono">WorkflowAI.optimize()</span>
-                  <span
-                    className={`font-semibold ${
-                      isDark ? 'text-green-400' : 'text-green-600'
-                    }`}
-                  >
-                    87% Faster Ops
-                  </span>
-                </div>
-
-                {/* PREDICTION */}
-                <div
-                  className={`flex justify-between border-b ${
-                    isDark ? 'border-gray-700' : 'border-gray-300'
-                  } pb-2`}
-                >
-                  <span className="font-mono">ForecastEngine.predict('Revenue')</span>
-                  <span className={`font-semibold ${getClasses(theme, 'text-primary')}`}>
-                    +14.2% Projected
-                  </span>
-                </div>
-
-                {/* CUSTOM LLM */}
-                <div
-                  className={`flex justify-between border-b ${
-                    isDark ? 'border-gray-700' : 'border-gray-300'
-                  } pb-2`}
-                >
-                  <span className="font-mono">LLM.custom('SupportBot')</span>
-                  <span
-                    className={`font-semibold ${getClasses(theme, 'text-highlight')}`}
-                  >
-                    42% Load Reduction
-                  </span>
-                </div>
-
-                {/* INSIGHTS */}
-                <div className="flex justify-between">
-                  <span className="font-mono">InsightEngine.cluster()</span>
-                  <span
-                    className={`font-semibold ${getClasses(theme, 'text-highlight')}`}
-                  >
-                    6 Segments Mapped
-                  </span>
-                </div>
-              </div>
-
-              <p
-                className={`text-4xl font-mono mt-4 text-right ${
-                  isDark ? 'text-white/50' : 'text-gray-400'
-                }`}
-              >
-                &lt;/EdgeAI.System&gt;
-              </p>
-            </div>
-          </div>
-
-        </div>
+      {/* ── Ambient colour blobs ──────────────────────────────── */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        <div className="orb" style={{
+          position: 'absolute', top: '-8%', left: '-5%',
+          width: 550, height: 550, borderRadius: '50%',
+          background: dark
+            ? 'radial-gradient(circle, rgba(26,115,232,0.20) 0%, transparent 60%)'
+            : 'radial-gradient(circle, rgba(26,115,232,0.12) 0%, transparent 60%)',
+        }}/>
+        <div className="orb-2" style={{
+          position: 'absolute', top: '5%', right: '-6%',
+          width: 460, height: 460, borderRadius: '50%',
+          background: dark
+            ? 'radial-gradient(circle, rgba(0,137,123,0.15) 0%, transparent 60%)'
+            : 'radial-gradient(circle, rgba(0,137,123,0.09) 0%, transparent 60%)',
+        }}/>
       </div>
-    </section>
-  );
-};
 
-const solutionsData = [
-  { 
-    title: "Lora", 
-    description: "Custom AI representative that handle the entire customer journey—from first contact, qualification, end-to-end sales, and retention delivering accurate, context-aware support 24/7.", 
-    icon: MessageSquareText 
-  },
-  { 
-    title: "Iris360", 
-    description: "Advanced OCR APIs that digitize documents, extract key data points, and automate entry from ID's, logbooks, and forms instantly.", 
-    icon: ScanEye 
-  },
-  { 
-    title: "Nexus", 
-    description: "Autonomous agentic workflows that chain complex reasoning tasks together to execute multi-step business processes without human intervention.", 
-    icon: Waypoints 
-  },
-  { 
-    title: "GenPulse", 
-    description: "Generative AI automations for creative content, code generation, and personalized marketing campaigns at enterprise scale.", 
-    icon: Zap 
-  },
-];
+      {/* ── Animated SVG waves — bottom of hero ───────────────── */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+        <svg
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+          style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            width: '100%', height: 'auto', maxHeight: '42%',
+            opacity: dark ? 0.72 : 0.60,
+          }}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stopColor="#1a73e8" stopOpacity="0.38"/>
+              <stop offset="50%"  stopColor="#00897b" stopOpacity="0.28"/>
+              <stop offset="100%" stopColor="#7c4dff" stopOpacity="0.30"/>
+            </linearGradient>
+            <linearGradient id="waveGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stopColor="#60a5fa" stopOpacity="0.25"/>
+              <stop offset="50%"  stopColor="#1a73e8" stopOpacity="0.30"/>
+              <stop offset="100%" stopColor="#00897b" stopOpacity="0.20"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#waveGrad1)">
+            <animate attributeName="d" dur="9s" repeatCount="indefinite"
+              values="
+                M0,180 C240,120 480,240 720,180 C960,120 1200,200 1440,160 L1440,320 L0,320 Z;
+                M0,200 C200,140 440,260 720,200 C1000,140 1240,220 1440,180 L1440,320 L0,320 Z;
+                M0,160 C280,200 520,120 720,160 C920,200 1160,140 1440,200 L1440,320 L0,320 Z;
+                M0,180 C240,120 480,240 720,180 C960,120 1200,200 1440,160 L1440,320 L0,320 Z"
+            />
+          </path>
+          <path fill="url(#waveGrad2)" fillOpacity="0.75">
+            <animate attributeName="d" dur="12s" repeatCount="indefinite"
+              values="
+                M0,240 C320,180 640,280 960,220 C1100,190 1280,240 1440,210 L1440,320 L0,320 Z;
+                M0,220 C360,260 600,180 900,240 C1100,280 1280,210 1440,240 L1440,320 L0,320 Z;
+                M0,260 C280,220 520,280 800,240 C1060,200 1280,260 1440,220 L1440,320 L0,320 Z;
+                M0,240 C320,180 640,280 960,220 C1100,190 1280,240 1440,210 L1440,320 L0,320 Z
+              "
+            />
+          </path>
+        </svg>
 
- 
-const SolutionsSection = () => {
-  const { theme, getClasses } = useTheme();
-  return (
-    <section id="solutions" className={`py-24 ${getClasses(theme, 'bg-main')} border-t ${getClasses(theme, 'border-separator')}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className={`text-4xl sm:text-5xl font-extrabold text-center mb-4 ${getClasses(theme, 'text-primary')}`}>
-          Our AI <span className={getClasses(theme, 'text-highlight')}>Solution Suite</span>
-        </h2>
-        <p className={`text-xl text-center mb-16 max-w-3xl mx-auto ${getClasses(theme, 'text-secondary')}`}>
-          We deliver modular, scalable solutions designed to integrate seamlessly into your existing infrastructure.
+        {/* Subtle dot grid overlay */}
+        <svg
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: dark ? 0.04 : 0.035 }}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <pattern id="dotGrid" width="28" height="28" patternUnits="userSpaceOnUse">
+              <circle cx="1.5" cy="1.5" r="1.5" fill={dark ? '#ffffff' : '#202124'}/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dotGrid)"/>
+        </svg>
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 860, margin: '0 auto' }}>
+
+        {/* Eyebrow badge */}
+        <div className="fade-up delay-1" style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '6px 16px',
+          borderRadius: 100,
+          border: dark ? '1px solid rgba(26,115,232,0.3)' : '1px solid rgba(26,115,232,0.2)',
+          background: dark ? 'rgba(26,115,232,0.1)' : 'rgba(26,115,232,0.06)',
+          marginBottom: 32,
+        }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1a73e8', display: 'inline-block', animation: 'pulse 2s infinite' }}/>
+          <span style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.05em', color: '#1a73e8' }}>
+            AI-powered business solutions — built for Africa
+          </span>
+        </div>
+
+        {/* Main headline */}
+        <h1 className="fade-up delay-2 font-display" style={{
+          fontSize: 'clamp(2.4rem, 5vw, 4.4rem)',
+          fontWeight: 800,
+          lineHeight: 1.12,
+          letterSpacing: '-0.025em',
+          marginBottom: 28,
+          color: textPrimary,
+        }}>
+          Gain the Edge with AI.
+          {/* Intelligent automation<br/>
+          for businesses that{' '}
+          <span className="gradient-text">mean business.</span> */}
+        </h1>
+
+        {/* Sub-headline */}
+        <p className="fade-up delay-3" style={{
+          fontSize: 'clamp(1rem, 2vw, 1.25rem)',
+          lineHeight: 1.65,
+          color: textSecondary,
+          maxWidth: 620,
+          margin: '0 auto 48px',
+          fontWeight: 400,
+        }}>
+          {/* Opsflow AI designs and deploys custom AI solutions that automate your business
+          processes, convert enquiries on WhatsApp around the clock, and put an intelligent
+          assistant inside every team. */}
+          Supercharging businesses with bespoke AI solutions for real-world impact and exponential growth.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {solutionsData.map((solution, index) => (
-            <div 
-              key={index} 
-              className={`p-6 rounded-xl shadow-lg transition duration-500 transform hover:translate-y-[-5px] ${getClasses(theme, 'card-bg')}`}
-            >
-              <solution.icon className={`h-10 w-10 ${getClasses(theme, 'text-primary')} mb-4 p-1 rounded-full ${getClasses(theme, 'icon-bg')}`} />
-              <h3 className={`text-xl font-semibold mb-3 ${getClasses(theme, 'text-primary')}`}>{solution.title}</h3>
-              <p className={`text-sm ${getClasses(theme, 'text-secondary')}`}>{solution.description}</p>
-            </div>
-          ))}
-        </div>
-        
-        <div className="text-center mt-16">
-          <button 
-            onClick={(e) => { e.preventDefault(); document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' }); }}
-            // FIX: Replaced broken class string with the new semantic utility class
-            className={`inline-flex items-center px-6 py-3 text-sm font-medium rounded-full transition duration-300 border ${getClasses(theme, 'button-secondary-outline')}`}
-          >
-            Request a Customized Demo <ArrowRight className="ml-2 h-4 w-4" />
+        {/* CTA row */}
+        <div className="fade-up delay-4 hero-cta" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button onClick={() => go('#solutions')} className="btn btn-primary" style={{ fontSize: '0.95rem', padding: '14px 32px' }}>
+            Explore our solutions <ArrowRight size={16}/>
+          </button>
+          <button onClick={() => go('#contact')} className="btn btn-outline" style={{ fontSize: '0.95rem', padding: '13px 30px' }}>
+            Talk to our team
           </button>
         </div>
-      </div>
-    </section>
-  );
-};
 
-{/* <SolutionsSection /> */}
-// --- 5. Statistics/Impact Component ---
-
-const statsData = [
-  { value: "45%", label: "Average Efficiency Increase" },
-  { value: "3.2x", label: "ROI on AI Investments" },
-  { value: "1+", label: "Businesses Transformed" },
-  { value: "99.8%", label: "Data Model Accuracy" },
-];
-
-const StatsSection = () => {
-  const { theme, getClasses } = useTheme();
-  return (
-    <section id="impact" className={`py-24 ${getClasses(theme, 'bg-secondary')} border-t ${getClasses(theme, 'border-separator')}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className={`text-4xl sm:text-5xl font-extrabold text-center mb-12 ${getClasses(theme, 'text-primary')}`}>
-          Measureable <span className={getClasses(theme, 'text-highlight')}>Business Impact</span>
-        </h2>
-        
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-          {statsData.map((stat, index) => (
-            <div key={index} className="p-4">
-              <p className={`text-5xl sm:text-6xl font-extrabold mb-2 ${getClasses(theme, 'text-primary')}`}>{stat.value}</p>
-              <p className={`text-lg ${getClasses(theme, 'text-secondary')}`}>{stat.label}</p>
+        {/* Trust indicators */}
+        <div className="fade-up delay-4 hero-trust" style={{
+          display: 'flex', gap: 28, justifyContent: 'center', flexWrap: 'wrap',
+          marginTop: 56,
+          paddingTop: 32,
+          borderTop: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+        }}>
+          {[
+            { icon: CheckCircle2, text: 'Globally available' },
+            { icon: CheckCircle2, text: 'Deployed in under 30 days' },
+            { icon: CheckCircle2, text: 'SME & enterprise ready' },
+            { icon: CheckCircle2, text: '100% ownership of your AI' },
+          ].map(({ icon: Icon, text }) => (
+            <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <Icon size={15} style={{ color: '#00897b', flexShrink: 0 }}/>
+              <span style={{ fontSize: '0.82rem', fontWeight: 500, color: textSecondary }}>{text}</span>
             </div>
           ))}
         </div>
-        
-        <div className="mt-16 text-center max-w-4xl mx-auto">
-          <h3 className={`text-3xl font-semibold mb-4 ${getClasses(theme, 'text-highlight')}`}>Future-Proof Your Business.</h3>
-          <p className={`text-lg ${getClasses(theme, 'text-secondary')}`}>
-            The future of business is intelligent. Partner with EdgeAI to ensure your organization stays competitive, maximizes resource utilization, and uncovers new revenue streams through data-driven insight.
-          </p>
+      </div>
+
+      {/* Scroll nudge */}
+      <div style={{ position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)', color: dark ? '#5f6368' : '#9aa0a6', animation: 'bounce 2s infinite' }}>
+        <ChevronDown size={20}/>
+      </div>
+
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+        @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+      `}</style>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SOLUTIONS
+══════════════════════════════════════════════════════════════ */
+const SOLUTIONS = [
+  {
+    Icon: Settings2,
+    accent: '#1a73e8',
+    accentBg: '#e8f0fe',
+    name: 'Business Process Automation',
+    tagline: 'Eliminate operational drag.',
+    body: 'We analyse your workflows and replace repetitive, error-prone tasks with intelligent automation. From purchase approvals and invoice routing to staff rostering and inventory alerts — we engineer the system, train your team, and monitor performance.',
+    points: [
+      'End-to-end workflow design & deployment',
+      'Integrates with your existing tools (ERP, CRM, email)',
+      'Real-time dashboards and exception alerts',
+    ],
+  },
+  {
+    Icon: MessageSquare,
+    accent: '#00897b',
+    accentBg: '#e0f2f1',
+    name: 'WhatsApp AI Sales Agent',
+    tagline: 'Your sales floor, open 24 / 7.',
+    body: 'A conversational AI agent trained on your product catalogue, pricing, and tone of voice. It qualifies leads, answers complex enquiries, upsells, and closes — handling hundreds of conversations simultaneously on the platform your customers already use.',
+    points: [
+      'Trained on your actual products and pricing',
+      'Handles order placement, FAQs & lead capture',
+      'Syncs activity to your CRM automatically',
+    ],
+  },
+  {
+    Icon: BrainCircuit,
+    accent: '#7c4dff',
+    accentBg: '#ede7f6',
+    name: 'Generative AI for Business',
+    tagline: 'An expert for every department.',
+    body: 'We build private, secure AI assistants trained on your internal documentation. HR teams get instant policy lookup. Customer support handles complex queries without escalations. New staff onboard in hours, not weeks.',
+    points: [
+      'Private RAG deployment on your infrastructure',
+      'HR, customer support & onboarding bots',
+      'Connects to your knowledge base and docs',
+    ],
+  },
+];
+
+function SolutionCard({ sol, index }) {
+  const { theme } = useTheme();
+  const dark = theme === 'dark';
+  const { Icon, accent, accentBg, name, tagline, body, points } = sol;
+
+  return (
+    <div className="card" style={{ padding: '36px 32px', display: 'flex', flexDirection: 'column' }}>
+      {/* Icon badge */}
+      <div style={{
+        width: 52, height: 52, borderRadius: 14, marginBottom: 20,
+        background: dark ? `${accent}1a` : accentBg,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Icon size={24} style={{ color: accent }}/>
+      </div>
+
+      <div style={{
+        display: 'inline-block', marginBottom: 12,
+        padding: '3px 10px', borderRadius: 100,
+        fontSize: '0.7rem', fontWeight: 700,
+        letterSpacing: '0.06em', textTransform: 'uppercase',
+        background: dark ? `${accent}18` : accentBg,
+        color: accent,
+      }}>
+        0{index + 1}
+      </div>
+
+      <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 6, color: dark ? '#e8eaed' : '#202124' }}>
+        {name}
+      </h3>
+      <p style={{ fontSize: '0.9rem', fontWeight: 600, color: accent, marginBottom: 14 }}>{tagline}</p>
+      <p style={{ fontSize: '0.9rem', lineHeight: 1.7, color: dark ? '#9aa0a6' : '#5f6368', marginBottom: 20, flexGrow: 1 }}>{body}</p>
+
+      <ul style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+        {points.map(pt => (
+          <li key={pt} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <CheckCircle2 size={15} style={{ color: accent, marginTop: 2, flexShrink: 0 }}/>
+            <span style={{ fontSize: '0.85rem', color: dark ? '#9aa0a6' : '#5f6368', lineHeight: 1.5 }}>{pt}</span>
+          </li>
+        ))}
+      </ul>
+
+      <button
+        onClick={() => go('#contact')}
+        style={{
+          alignSelf: 'flex-start',
+          background: 'none', border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 6,
+          fontSize: '0.875rem', fontWeight: 700, color: accent,
+          fontFamily: 'inherit', padding: 0, transition: 'gap 0.15s',
+        }}
+        onMouseEnter={e => e.currentTarget.style.gap = '10px'}
+        onMouseLeave={e => e.currentTarget.style.gap = '6px'}
+      >
+        Enquire about this <ArrowRight size={14}/>
+      </button>
+    </div>
+  );
+}
+
+function Solutions() {
+  const { theme } = useTheme();
+  const dark = theme === 'dark';
+  return (
+    <section id="solutions" style={{ padding: '100px 28px', background: dark ? '#0f0f12' : '#f8f9fa' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+        <div style={{ marginBottom: 64 }}>
+          <span className="eyebrow">What we build</span>
+          <h2 className="font-display" style={{
+          fontSize: 'clamp(1.6rem, 3vw, 2.4rem)',
+          fontWeight: 800, lineHeight: 1.2,
+          letterSpacing: '-0.025em',
+          color: dark ? '#e8eaed' : '#202124',
+          maxWidth: 540,
+        }}>
+            Three focused solutions.<br/>Proven business outcomes.
+          </h2>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+          {SOLUTIONS.map((s, i) => <SolutionCard key={s.name} sol={s} index={i}/>)}
         </div>
       </div>
     </section>
   );
-};
+}
 
-// --- 6. Contact Us Component ---
+/* ══════════════════════════════════════════════════════════════
+   WHY OPSFLOW
+══════════════════════════════════════════════════════════════ */
+const WHY_ITEMS = [
+  { Icon: Zap,       title: 'Fast to deploy',       body: 'Working demos in under 2 weeks. Full rollout within 30 days. We don\'t do long discovery phases.' },
+  { Icon: Shield,    title: 'You own everything',   body: 'Every line of code, every model weight, every data pipeline is yours. No platform dependency.' },
+  { Icon: Users,     title: 'Process-first approach', body: 'We map your operations before we write a line of code. The AI fits your business, not the other way around.' },
+  { Icon: Clock,     title: 'Always on',            body: 'Our agents operate 24 / 7 / 365. Enquiries at midnight, peak season spikes — handled without you lifting a finger.' },
+  { Icon: BarChart3, title: 'ROI from day one',     body: 'Every engagement is anchored to a measurable outcome: leads captured, hours saved, errors eliminated.' },
+  { Icon: Layers,    title: 'Built for Africa',     body: 'Optimised for WhatsApp, local infrastructure, and Kenyan business realities — not copy-pasted from Silicon Valley.' },
+];
 
-const InputField = ({ label, name, type = 'text', required = true, value, onChange, theme, getClasses }) => (
-  <div>
-    <label htmlFor={name} className={`block text-sm font-medium ${getClasses(theme, 'text-highlight')}`}>{label}</label>
-    <input
-      type={type}
-      name={name}
-      id={name}
-      required={required}
-      value={value}
-      onChange={onChange}
-      className={`mt-1 block w-full px-4 py-3 rounded-lg shadow-sm sm:text-sm transition duration-300 ${getClasses(theme, 'input-bg')}`}
-    />
-  </div>
-);
-
-const ContactSection = () => {
-  const { theme, getClasses } = useTheme();
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [status, setStatus] = useState('');
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setStatus(''); // Clear status on change
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Mock API call
-    if (!formData.name || !formData.email || !formData.message) {
-        setStatus("Please fill in all fields.");
-        return;
-    }
-    
-    setStatus('Sending...');
-    
-    setTimeout(() => {
-      console.log('Form Submitted:', formData);
-      setStatus('Message sent successfully! We will contact you soon.');
-      setFormData({ name: '', email: '', message: '' }); // Reset form
-    }, 1500);
-  };
-
-
-  const isDark = theme === 'dark';
-
+function WhyOpsflow() {
+  const { theme } = useTheme();
+  const dark = theme === 'dark';
   return (
-    <section id="contact" className={`py-24 ${getClasses(theme, 'bg-main')} border-t ${getClasses(theme, 'border-separator')}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className={`text-4xl sm:text-5xl font-extrabold text-center mb-4 ${getClasses(theme, 'text-primary')}`}>
-          Ready to <span className={getClasses(theme, 'text-highlight')}>Connect?</span>
+    <section id="why" style={{ padding: '100px 28px', background: dark ? '#1c1c1e' : '#ffffff' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+        <div className="lg-grid" style={{ alignItems: 'start' }}>
+
+          {/* Left: statement */}
+          <div>
+            <span className="eyebrow">Why Opsflow</span>
+            <h2 className="font-display" style={{
+              fontSize: 'clamp(1.6rem, 2.8vw, 2.4rem)',
+              fontWeight: 800, lineHeight: 1.25, marginBottom: 20,
+              letterSpacing: '-0.025em',
+              color: dark ? '#e8eaed' : '#202124',
+            }}>
+              We don't sell AI products.<br/>
+              We solve your specific problem.
+            </h2>
+            <p style={{ fontSize: '1rem', lineHeight: 1.75, color: dark ? '#9aa0a6' : '#5f6368', marginBottom: 32 }}>
+              Most AI vendors hand you a platform and leave you to configure it.
+              We take the opposite approach — we sit with your team, understand your
+              operations deeply, and build a solution targeted at your highest-leverage
+              opportunity. Then we stay engaged to make sure it delivers.
+            </p>
+            <button onClick={() => go('#contact')} className="btn btn-primary">
+              Schedule a discovery call <ArrowRight size={15}/>
+            </button>
+          </div>
+
+          {/* Right: feature grid */}
+          <div className="why-grid">
+            {WHY_ITEMS.map(({ Icon, title, body }) => (
+              <div key={title} style={{
+                padding: '22px 20px',
+                borderRadius: 14,
+                background: dark ? 'rgba(255,255,255,0.03)' : '#f8f9fa',
+                border: dark ? '1px solid rgba(255,255,255,0.05)' : '1px solid #e8eaed',
+                transition: 'background 0.2s',
+              }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: 10, marginBottom: 12,
+                  background: 'rgba(26,115,232,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon size={17} style={{ color: '#1a73e8' }}/>
+                </div>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: 6, letterSpacing: '-0.01em', color: dark ? '#e8eaed' : '#202124' }}>{title}</h4>
+                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: dark ? '#9aa0a6' : '#5f6368' }}>{body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        .lg-grid  { display: grid; grid-template-columns: 1fr;      gap: 48px; }
+        .why-grid { display: grid; grid-template-columns: 1fr;      gap: 14px; }
+        @media (min-width: 640px)  { .why-grid { grid-template-columns: 1fr 1fr; } }
+        @media (min-width: 900px)  { 
+          .lg-grid  { grid-template-columns: 1fr 1fr; gap: 80px; } 
+          .why-grid { grid-template-columns: 1fr 1fr; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESULTS / IMPACT
+══════════════════════════════════════════════════════════════ */
+const STATS = [
+  { value: '< 2 weeks', label: 'Time to first working demo' },
+  { value: '60%+',      label: 'Average reduction in manual operations' },
+  { value: '24 / 7',   label: 'Agent uptime — no breaks, no sick days' },
+  { value: '100%',      label: 'Client ownership of all deliverables' },
+];
+
+function Results() {
+  const { theme } = useTheme();
+  const dark = theme === 'dark';
+  return (
+    <section id="impact" style={{ padding: '100px 28px', background: dark ? '#0f0f12' : '#f8f9fa' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+        <span className="eyebrow">Results</span>
+        <h2 className="font-display" style={{
+          fontSize: 'clamp(1.6rem, 3vw, 2.4rem)',
+          fontWeight: 800, lineHeight: 1.25, marginBottom: 16,
+          letterSpacing: '-0.025em',
+          color: dark ? '#e8eaed' : '#202124',
+          maxWidth: 540,
+        }}>
+          Numbers that reflect real outcomes.
         </h2>
-        <p className={`text-xl text-center mb-16 max-w-2xl mx-auto ${getClasses(theme, 'text-secondary')}`}>
-          Schedule a consultation with our AI strategists to map out your digital transformation.
+        <p style={{ fontSize: '1rem', color: dark ? '#9aa0a6' : '#5f6368', marginBottom: 56, maxWidth: 480 }}>
+          These figures come from our active client engagements, not marketing estimates.
         </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          
-          {/* Contact Information */}
-          <div className={`lg:col-span-1 space-y-8 p-6 rounded-xl border ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-gray-100 border-gray-200'}`}>
-            <h3 className={`text-2xl font-semibold mb-4 ${getClasses(theme, 'text-primary')}`}>Our Details</h3>
-            
-            <div className="flex items-start space-x-4">
-              <Mail className={`h-6 w-6 ${getClasses(theme, 'text-primary')} flex-shrink-0 mt-1`} />
-              <div>
-                <p className={`font-medium ${getClasses(theme, 'text-highlight')}`}>Email Us</p>
-                <a href="mailto:info@edgeai.com" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>edgeaiinc@gmail.com</a>
-              </div>
+        {/* Stat grid */}
+        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 1, borderRadius: 20, overflow: 'hidden', border: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #e8eaed' }}>
+          {STATS.map((s, i) => (
+            <div key={i} style={{
+              padding: '40px 32px',
+              background: dark ? '#1c1c1e' : '#ffffff',
+            }}>
+              <p className="stat-num">{s.value}</p>
+              <p style={{ fontSize: '0.85rem', lineHeight: 1.55, color: dark ? '#9aa0a6' : '#5f6368', marginTop: 8 }}>{s.label}</p>
             </div>
-            
-            <div className="flex items-start space-x-4">
-              <Phone className={`h-6 w-6 ${getClasses(theme, 'text-primary')} flex-shrink-0 mt-1`} />
-              <div>
-                <p className={`font-medium ${getClasses(theme, 'text-highlight')}`}>Call Us</p>
-                <a href="tel:+18005550199" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>+254724609783</a>
-              </div>
+          ))}
+        </div>
+
+        {/* Testimonial */}
+        <div style={{
+          marginTop: 40, padding: '40px 44px',
+          borderRadius: 20,
+          background: dark ? '#1c1c1e' : '#ffffff',
+          border: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #e8eaed',
+        }}>
+          <p style={{ fontSize: '1.15rem', lineHeight: 1.7, fontStyle: 'italic', color: dark ? '#c4c7cc' : '#3c4043', marginBottom: 24, maxWidth: 680 }}>
+            "The WhatsApp agent Opsflow built handled our entire peak-season sales flow.
+            We went from missing enquiries after 6pm to closing orders at midnight — without hiring anyone new.
+            It paid for itself in the first week of deployment."
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{
+              width: 42, height: 42, borderRadius: '50%',
+              background: 'linear-gradient(135deg, #1a73e8, #00897b)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '0.85rem', fontWeight: 700, color: '#fff',
+            }}>JM</div>
+            <div>
+              <p style={{ fontWeight: 700, fontSize: '0.9rem', color: dark ? '#e8eaed' : '#202124' }}>Joyce M.</p>
+              <p style={{ fontSize: '0.8rem', color: dark ? '#9aa0a6' : '#5f6368' }}>Founder & CEO — retail business, Nairobi</p>
             </div>
-            
-            <div className="flex items-start space-x-4">
-              <MapPin className={`h-6 w-6 ${getClasses(theme, 'text-primary')} flex-shrink-0 mt-1`} />
-              <div>
-                <p className={`font-medium ${getClasses(theme, 'text-highlight')}`}>Our Headquarters</p>
-                <p className={getClasses(theme, 'text-secondary')}>Delta Tower, Westlands.</p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Contact Form */}
-          <div className={`lg:col-span-2 p-6 rounded-xl border ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-gray-100 border-gray-200'}`}>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InputField 
-                    label="Full Name" 
-                    name="name" 
-                    value={formData.name} 
-                    onChange={handleChange} 
-                    theme={theme} 
-                    getClasses={getClasses} 
-                />
-                <InputField 
-                    label="Work Email" 
-                    name="email" 
-                    type="email" 
-                    value={formData.email} 
-                    onChange={handleChange} 
-                    theme={theme} 
-                    getClasses={getClasses} 
-                />
-              </div>
-
-              <div>
-                <label htmlFor="message" className={`block text-sm font-medium ${getClasses(theme, 'text-highlight')}`}>Message / Project Summary</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="4"
-                  required
-                  value={formData.message}
-                  onChange={handleChange}
-                  className={`mt-1 block w-full px-4 py-3 rounded-lg shadow-sm sm:text-sm transition duration-300 ${getClasses(theme, 'input-bg')}`}
-                ></textarea>
-              </div>
-
-              {status && (
-                <div 
-                  className={`p-3 rounded-lg text-sm ${
-                    status.includes('successfully') ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
-                  }`}
-                >
-                  {status}
-              </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={status.includes('Sending')}
-                className={`w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm transition duration-300 disabled:opacity-50 ${getClasses(theme, 'button-primary')}`}
-              >
-                {status.includes('Sending') ? 'Sending...' : 'Send Message'}
-              </button>
-            </form>
           </div>
         </div>
       </div>
     </section>
   );
-};
-{/* <ContactSection /> */}
+}
 
-// --- 7. Footer Component ---
-
-const Footer = () => {
-  const { theme, getClasses } = useTheme();
-  const isDark = theme === 'dark';
+/* ══════════════════════════════════════════════════════════════
+   CONTACT + TALLY FORM SLOT
+══════════════════════════════════════════════════════════════ */
+function Contact() {
+  const { theme } = useTheme();
+  const dark = theme === 'dark';
+  const bg = dark ? '#1c1c1e' : '#ffffff';
+  const border = dark ? 'rgba(255,255,255,0.06)' : '#e8eaed';
 
   return (
-    <footer className={`${getClasses(theme, 'bg-secondary')} border-t ${getClasses(theme, 'border-separator')}`}>
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-1">
-             <div className="flex-shrink-0 mb-6">
-                <Link to="/" className="flex items-center space-x-2">
-                  <img
-                    src={isDark ?  logoWhite : logo}
-                    alt="EdgeAI Logo"
-                    className="h-20 w-auto object-contain"
-                  />
-                </Link>
+    <section id="contact" style={{ padding: '100px 28px', background: dark ? '#0f0f12' : '#f8f9fa' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div className="contact-grid">
+
+          {/* Left — info */}
+          <div>
+            <span className="eyebrow">Get in touch</span>
+            <h2 className="font-display" style={{
+              fontSize: 'clamp(1.6rem, 2.8vw, 2.4rem)',
+              fontWeight: 800, lineHeight: 1.25, marginBottom: 16,
+              letterSpacing: '-0.025em',
+              color: dark ? '#e8eaed' : '#202124',
+            }}>
+              Let's figure out what's<br/>holding your business back.
+            </h2>
+            <p style={{ fontSize: '1rem', lineHeight: 1.7, color: dark ? '#9aa0a6' : '#5f6368', marginBottom: 40 }}>
+              Reach out with a brief description of your challenge.
+              We'll come back within 24 hours with honest thoughts on what's feasible — no sales pitch required.
+            </p>
+
+            {[
+              { Icon: Mail,   label: 'Email',    val: 'opsflowai@gmail.com',   href: 'mailto:opsflowai@gmail.com' },
+              { Icon: Phone,  label: 'Phone',    val: '+254 724 609 783',       href: 'tel:+254724609783' },
+              { Icon: MapPin, label: 'Location', val: 'Delta Tower, Westlands, Nairobi', href: null },
+            ].map(({ Icon, label, val, href }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                  background: 'rgba(26,115,232,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Icon size={17} style={{ color: '#1a73e8' }}/>
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: dark ? '#5f6368' : '#9aa0a6', marginBottom: 2 }}>{label}</p>
+                  {href
+                    ? <a href={href} style={{ fontSize: '0.9rem', fontWeight: 600, color: dark ? '#e8eaed' : '#202124', textDecoration: 'none', transition: 'color 0.15s' }}
+                        onMouseEnter={e => e.target.style.color = '#1a73e8'}
+                        onMouseLeave={e => e.target.style.color = dark ? '#e8eaed' : '#202124'}
+                      >{val}</a>
+                    : <p style={{ fontSize: '0.9rem', fontWeight: 600, color: dark ? '#e8eaed' : '#202124' }}>{val}</p>
+                  }
+                </div>
               </div>
-              <p className={`text-sm ${getClasses(theme, 'text-secondary')} max-w-xs`}>
-                Empowering Kenyan businesses with cutting-edge AI solutions for global competitiveness.
+            ))}
+          </div>
+
+          {/* Right — Tally form */}
+          <div style={{
+            borderRadius: 20, overflow: 'hidden',
+            background: bg,
+            border: `1px solid ${border}`,
+            boxShadow: '0 4px 24px rgba(60,64,67,0.08)',
+          }}>
+            {/*
+              ┌─────────────────────────────────────────────────────┐
+              │  HOW TO EMBED YOUR TALLY FORM                       │
+              │  1. Go to tally.so → create form → Share → Embed    │
+              │  2. Copy the <iframe> snippet Tally provides         │
+              │  3. Replace the <div> below with your <iframe>       │
+              │                                                      │
+              │  Example:                                            │
+              │  <iframe                                             │
+              │    data-tally-src="https://tally.so/embed/YOUR_ID   │
+              │      ?alignLeft=1&hideTitle=1                        │
+              │      &transparentBackground=1&dynamicHeight=1"       │
+              │    loading="lazy" width="100%" height="650"          │
+              │    frameBorder="0" title="Enquiry form" />           │
+              └─────────────────────────────────────────────────────┘
+            */}
+            <div style={{ padding: '40px 36px' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 6, letterSpacing: '-0.01em', color: dark ? '#e8eaed' : '#202124' }}>
+                Send us an enquiry
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: dark ? '#9aa0a6' : '#5f6368', marginBottom: 28 }}>
+                Tell us about your business and the challenge you want to solve. We respond within 24 hours.
               </p>
-          </div>
-          
-          <div className="md:col-span-1">
-            <h4 className={`text-lg font-bold mb-4 ${getClasses(theme, 'text-primary')}`}>Quick Links</h4>
-            <ul className="space-y-2">
-              {NAV_ITEMS.map((item) => (
-                <li key={item.name}>
-                  <button 
-                    onClick={() => {
-                       const section = document.querySelector(item.href);
-                       if (section) section.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className={`text-sm ${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}
-                  >
-                    {item.name}
-                  </button>
-                </li>
+
+              {/* Placeholder form skeleton — replace with Tally iframe */}
+              {[
+                { label: 'Your name', type: 'text' },
+                { label: 'Email address', type: 'email' },
+                { label: 'Company name', type: 'text' },
+              ].map(({ label }) => (
+                <div key={label} style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: dark ? '#9aa0a6' : '#5f6368', marginBottom: 6 }}>{label}</label>
+                  <div style={{ height: 44, borderRadius: 10, border: `1px solid ${border}`, background: dark ? 'rgba(255,255,255,0.03)' : '#f8f9fa' }}/>
+                </div>
               ))}
-            </ul>
-          </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: dark ? '#9aa0a6' : '#5f6368', marginBottom: 6 }}>Which solution interests you?</label>
+                <div style={{ height: 44, borderRadius: 10, border: `1px solid ${border}`, background: dark ? 'rgba(255,255,255,0.03)' : '#f8f9fa' }}/>
+              </div>
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: dark ? '#9aa0a6' : '#5f6368', marginBottom: 6 }}>Describe your challenge</label>
+                <div style={{ height: 100, borderRadius: 10, border: `1px solid ${border}`, background: dark ? 'rgba(255,255,255,0.03)' : '#f8f9fa' }}/>
+              </div>
 
-          <div className="md:col-span-1">
-            <h4 className={`text-lg font-bold mb-4 ${getClasses(theme, 'text-primary')}`}>Legal</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/privacy" className={`text-sm ${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <a href="#" className={`text-sm ${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>
-                  Terms of Service
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
+              {/* Tally callout */}
+              <div style={{
+                padding: '12px 14px', borderRadius: 10, marginBottom: 20,
+                background: 'rgba(26,115,232,0.06)',
+                border: '1px dashed rgba(26,115,232,0.25)',
+                display: 'flex', alignItems: 'flex-start', gap: 10,
+              }}>
+                <Zap size={14} style={{ color: '#1a73e8', marginTop: 2, flexShrink: 0 }}/>
+                <p style={{ fontSize: '0.78rem', lineHeight: 1.5, color: dark ? '#9aa0a6' : '#5f6368' }}>
+                  <strong style={{ color: '#1a73e8' }}>Embed your Tally form here.</strong> Replace the placeholder above with your iframe from <a href="https://tally.so" target="_blank" rel="noreferrer" style={{ color: '#1a73e8' }}>tally.so</a> to receive enquiries directly to your inbox.
+                </p>
+              </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
-          <p className={`text-center text-sm ${getClasses(theme, 'text-secondary')}`}>
-            &copy; {new Date().getFullYear()} OpsflowAI, Inc. All rights reserved.
-          </p>
-          <div className="flex mt-4 md:mt-0 space-x-6">
-            <a href="#" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>LinkedIn</a>
-            <a href="#" className={`${getClasses(theme, 'text-secondary')} hover:${isDark ? 'text-white' : 'text-black'} transition duration-300`}>Twitter</a>
+              <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '14px 0', fontSize: '0.95rem' }}>
+                Submit enquiry <ArrowRight size={15}/>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        .contact-grid { display: grid; grid-template-columns: 1fr; gap: 52px; }
+        @media(min-width:900px) { .contact-grid { grid-template-columns: 1fr 1fr; gap: 72px; align-items: start; } }
+      `}</style>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════════════════════ */
+function Footer() {
+  const { theme } = useTheme();
+  const dark = theme === 'dark';
+
+  return (
+    <footer style={{
+      padding: '56px 28px 40px',
+      background: dark ? '#1c1c1e' : '#ffffff',
+      borderTop: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #e8eaed',
+    }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+        <div className="footer-grid">
+          <div>
+            <img src={dark ? logoWhite : logo} alt="Opsflow AI" style={{ height: 64, width: 'auto', marginBottom: 16 }}/>
+            <p style={{ fontSize: '0.85rem', lineHeight: 1.65, color: dark ? '#9aa0a6' : '#5f6368', maxWidth: 260 }}>
+              Turning AI into a measurable competitive advantage for African businesses.
+            </p>
+          </div>
+          {[
+            { heading: 'Solutions', items: [
+              { label: 'Process Automation', href: '#solutions' },
+              { label: 'WhatsApp Agent', href: '#solutions' },
+              { label: 'Generative AI', href: '#solutions' },
+            ]},
+            { heading: 'Company', items: [
+              { label: 'Why Opsflow', href: '#why' },
+              { label: 'Results', href: '#impact' },
+              { label: 'Privacy Policy', href: '/privacy', internal: true },
+            ]},
+            { heading: 'Contact', items: [
+              { label: 'opsflowai@gmail.com', href: 'mailto:opsflowai@gmail.com' },
+              { label: '+254 724 609 783', href: 'tel:+254724609783' },
+              { label: 'Westlands, Nairobi', href: null },
+            ]},
+          ].map(col => (
+            <div key={col.heading}>
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', color: dark ? '#5f6368' : '#9aa0a6', marginBottom: 18 }}>{col.heading}</p>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {col.items.map(item => (
+                  <li key={item.label}>
+                    {item.internal
+                      ? <Link to={item.href} style={{ fontSize: '0.875rem', color: dark ? '#9aa0a6' : '#5f6368', textDecoration: 'none', transition: 'color 0.15s' }}>{item.label}</Link>
+                      : item.href
+                        ? <a href={item.href} style={{ fontSize: '0.875rem', color: dark ? '#9aa0a6' : '#5f6368', textDecoration: 'none', transition: 'color 0.15s' }}>{item.label}</a>
+                        : <span style={{ fontSize: '0.875rem', color: dark ? '#5f6368' : '#9aa0a6' }}>{item.label}</span>
+                    }
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div style={{
+          marginTop: 48, paddingTop: 24,
+          borderTop: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #e8eaed',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12,
+        }}>
+          <p style={{ fontSize: '0.8rem', color: dark ? '#9aa0a6' : '#9aa0a6' }}>
+            &copy; {new Date().getFullYear()} Opsflow AI Ltd. All rights reserved. Registered in Kenya.
+          </p>
+          <div style={{ display: 'flex', gap: 20 }}>
+            {['LinkedIn', 'Twitter / X'].map(p => (
+              <a key={p} href="#" style={{ fontSize: '0.8rem', color: dark ? '#9aa0a6' : '#9aa0a6', textDecoration: 'none', transition: 'color 0.15s' }}
+                onMouseEnter={e => e.target.style.color = '#1a73e8'}
+                onMouseLeave={e => e.target.style.color = dark ? '#9aa0a6' : '#9aa0a6'}
+              >{p}</a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+        @media(min-width:768px) { .footer-grid { grid-template-columns: 1.8fr 1fr 1fr 1fr; gap: 48px; } }
+      `}</style>
     </footer>
   );
-};
+}
 
+/* ══════════════════════════════════════════════════════════════
+   APP ROOT
+══════════════════════════════════════════════════════════════ */
+function App() {
+  const [theme, setTheme] = useState('light'); // ← Default: light
 
-// --- 8. Home Page Component ---
-const HomePage = () => {
-  return (
-    <main>
-      <HeroSection />
-      <AboutSection />
-      <SolutionsSection />
-      <StatsSection />
-      <ContactSection />
-    </main>
-  );
-};
-
-// --- 9. Main App Component (Provides Context) ---
-
-const App = () => {
-  const [theme, setTheme] = useState('light'); // Default to dark mode
-
-  const toggleTheme = () => {
-    setTheme(currentTheme => (currentTheme === 'dark' ? 'light' : 'dark'));
-  };
-
-  const themeContextValue = {
-    theme,
-    toggleTheme,
-    getClasses: getThemeClasses, // Exporting the utility function for consumption
-  };
-  
-  // Use a class on the body to handle background transitions and ensure the whole page adapts
   useEffect(() => {
-    document.documentElement.className = theme; // Applies 'dark' or 'light' class
+    document.documentElement.className = theme;
   }, [theme]);
 
   return (
-    <BrowserRouter>
-      <ThemeContext.Provider value={themeContextValue}>
-        <div className={`min-h-screen font-sans transition-colors duration-500 ${theme === 'dark' ? 'bg-black' : 'bg-blue-50'}`}>
-          <style>{`
-            /* Custom scroll behavior for the entire app */
-            html {
-              scroll-behavior: smooth;
-            }
-            /* Theme-specific body background */
-            html.dark {
-              background-color: #000000;
-            }
-            html.light {
-              background-color: #ffffff;
-            }
-            /* Hide scrollbar for a cleaner look while allowing scrolling */
-            body {
-              scrollbar-width: none; /* Firefox */
-            }
-            body::-webkit-scrollbar {
-              display: none; /* Chrome, Safari, Opera */
-            }
-          `}</style>
-          
+    <ThemeCtx.Provider value={{ theme, toggle: () => setTheme(t => t === 'dark' ? 'light' : 'dark') }}>
+      <BrowserRouter>
+        <div style={{
+          minHeight: '100vh',
+          background: theme === 'dark' ? '#0f0f12' : '#ffffff',
+          color: theme === 'dark' ? '#e8eaed' : '#202124',
+          transition: 'background 0.25s ease, color 0.25s ease',
+        }}>
           <Navbar />
-          
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/privacy" element={<PrivacyPolicy theme={theme} getClasses={getThemeClasses} />} />
-            {/* Catch-all redirect to home page */}
+            <Route path="/" element={
+              <main>
+                <Hero />
+                <Solutions />
+                <WhyOpsflow />
+                <Results />
+                <Contact />
+              </main>
+            } />
+            <Route path="/privacy" element={<PrivacyPolicy theme={theme} getClasses={() => ''} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          
           <Footer />
         </div>
-      </ThemeContext.Provider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </ThemeCtx.Provider>
   );
-};
+}
 
 export default App;
